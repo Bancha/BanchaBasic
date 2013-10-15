@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Jasmine Test Runner</title>
+  <link rel="stylesheet" type="text/css" href="jasmine/jasmine.css">
+  <script type="text/javascript" src="jasmine/jasmine.js"></script>
+  <script type="text/javascript" src="jasmine/jasmine-html.js"></script>
+
+  <!-- include source files here... -->
+  <script type="text/javascript" src="lib/ext-all-debug-w-comments.js"></script>
+  <script type="text/javascript">
+    if(!window.Ext) {
+      alert('Please copy the ExtJS 4 library into Bancha/Test/JavaScriptUnitTest/lib/ext-all-debug-w-comments.js');
+    }
+    Bancha = {};
+    Bancha.REMOTE_API = {}; // set this to not load the api as requirement
+  </script>
+
+  <script type="text/javascript" src="../../webroot/js/Loader.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/writer/JsonWithDateTime.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/writer/ConsistentJson.js"></script>
+  <script type="text/javascript" src="../../webroot/js/Remoting.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/Model.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/override/Validations.js"></script>
+  <script type="text/javascript" src="../../webroot/js/Main.js"></script>
+  <script type="text/javascript" src="../../webroot/js/loader/Interface.js"></script>
+  <script type="text/javascript" src="../../webroot/js/loader/Models.js"></script>
+  <script type="text/javascript" src="../../webroot/js/Logger.js"></script>
+
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/javascripts/helpers/SpecHelper.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/Mock.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/MockSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/Mock.Proxy.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/Mock.ProxySpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/ExtSpecHelper.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/ExtSpecHelperSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/helpers/BanchaSpecHelper.js"></script>
+
+  <script type="text/javascript" src="spec/javascripts/Ext-UtilSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/BanchaSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.LoaderSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.loader.ModelsSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.LoggerSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.LocalizerSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.data.ModelSpec.js"></script>
+  <script type="text/javascript" src="spec/javascripts/Bancha.data.writer.JsonWithDateTimeSpec.js"></script>
+
+</head>
+<body>
+
+<script type="text/javascript">
+  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+  jasmine.getEnv().execute();
+</script>
+
+</body>
+</html>
