@@ -1,18 +1,18 @@
 {
 	"name": "bancha/bancha-basic",
-	"description": "Bancha Basic plugin for CakePHP that provides the enterprise-ready integration of CakePHP with Sencha Touch and ExtJS.",
+	"description": "Bancha Basic provides everything you need to build your first Ext JS or Sencha Touch application, while using CakePHP on the server.",
 	"type": "cakephp-plugin",
-	"keywords": ["bancha", "basic", "cakephp", "extJS"],
-	"homepage": "http://banchaproject.org/",
-	"license": "GPL-3.0",
+	"keywords": ["bancha", "bancha-basic", "basic", "cakephp", "extjs", "ext js", "sencha extjs", "sencha ext js", "sencha", "sencha touch", "sencha architect", ],
+	"homepage": "http://bancha.io/",
+	"license": "LGPL-3.0",
 	"authors": [
 		{
 		  "name": "codeQ e.U.",
-		  "homepage": "http://www.studioq.at/"
+		  "homepage": "http://www.codeq.at/"
 		}
 	],
 	"support": {
-		"wiki": "http://banchaproject.org/documentation-basic.html",
+		"wiki": "http://bancha.io/documentation-basic.html",
 		"email": "support@banchaproject.org",
 		"source": "https://github.com/Bancha/BanchaBasic"
 	},
