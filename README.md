@@ -1,10 +1,14 @@
 [![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://banchaproject.com)
 
-This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information see http://bancha.io
+Bancha Basic composer plugin.
 ------------------------------
 
-Features
---------
+This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information 
+see http://bancha.io
+
+
+Bancha Features
+---------------
 
 *   handles all communication between server and client
 *   enables asynchronous and batched request to the server
