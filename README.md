@@ -1,6 +1,7 @@
 [![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://banchaproject.com)
 
-This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information see http://bancha.io
+This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information 
+see http://bancha.io
 ------------------------------
 
 Features
@@ -39,14 +40,16 @@ php composer.phar update
 
 Composer will download and install the Bancha Basic to `Plugin/Bancha` app's folder.
 
-For further instructions on using Bancha Basic please see [Installation and Usage](http://bancha.io/documentation.html).
+For further instructions on using Bancha Basic please see [Installation and Usage](http://bancha.io/documentation-basic-installation.html).
 
 Licensing
 ---------
 
-Bancha comes in two flavors. We have an open source version of Bancha Basic and commercial version Bancha Pro. For complete details see the [Bancha Licensing Overview](http://banchaproject.com/licensing.html). To purchase a commercial license or premium support please visit the [Bancha Store](http://banchaproject.com/store.html).
+Bancha comes in two flavors. We have an open source version of Bancha Basic and commercial version Bancha Pro. 
+For complete details see the [Bancha Licensing Overview](http://bancha.io/licensing.html). To purchase a commercial 
+license or premium support please visit the [Bancha Store](http://bancha.io/store.html).
 
-To download either our free or commercial version go to the [Bancha website](http://banchaproject.org/download.html).
+To download either our free or commercial version go to the [Bancha website](http://bancha.io/download.html).
 
 More information
 ----------------
