@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Bancha/Bancha.png)](https://travis-ci.org/Bancha/Bancha)
 
-This is the composer build of Bancha Basic, only releases are pushed to this repository. For mroe information see http://bancha.io
+This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information see http://bancha.io
 ------------------------------
 
 Features
@@ -17,6 +17,31 @@ Compatibility
 *   CakePHP 2.1.0 till latest
 *   ExtJS 4.0.7 till latest
 *   Sencha Touch 2.0.1.1 till latest
+
+Installation
+------------
+
+To install with Composer please use the following instructions:
+
+1. Add the package name with desired version (e.g. `"bancha/bancha-basic": "2.1.0"`) to the `require` key in your `composer.json`:
+
+```
+{
+    "require": {
+        "bancha/bancha-basic": "2.1.0"
+    }
+}
+
+```
+2. Run Composer's update command:
+
+```
+php composer.phar update
+```
+
+Composer will download and install the Bancha Basic to `Plugin/Bancha` app's folder.
+
+For further instructions on using Bancha Basic please see [Installation and Usage](http://bancha.io/documentation.html).
 
 Licensing
 ---------
