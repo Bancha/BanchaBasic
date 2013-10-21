@@ -1,7 +1,5 @@
 [![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://banchaproject.com)
 
-[![Build Status](https://travis-ci.org/Bancha/Bancha.png)](https://travis-ci.org/Bancha/Bancha)
-
 This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information see http://bancha.io
 ------------------------------
 
