@@ -1,7 +1,6 @@
 [![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://banchaproject.com)
 
-This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information 
-see http://bancha.io
+This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information see http://bancha.io
 ------------------------------
 
 Features
