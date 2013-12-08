@@ -12,7 +12,7 @@
  */
 
 App::uses('Inflector', 'Utility');
-App::uses('ArrayConverter', 'Bancha.Bancha/Utility');
+App::uses('BanchaException', 'Bancha.Bancha/Exception');
 
 /**
  * BanchaRequestTranformer.
@@ -30,10 +30,13 @@ class BanchaRequestTransformer {
 	protected $_data;
 
 /** @var string */
-	protected $_Controller = null;
+	protected $_plugin = null;
 
 /** @var string */
-	protected $_modelName = null;
+	protected $_controller = null;
+
+/** @var string */
+	protected $_model = null;
 
 /** @var string */
 	protected $_action = null;
@@ -97,28 +100,53 @@ class BanchaRequestTransformer {
 	}
 
 /**
+ * Returns the name of the plugin.
+ *
+ * @return string Name of the plugin.
+ */
+	public function getPlugin() {
+		// let getController() do the work
+		$this->getController();
+
+		return $this->_plugin;
+	}
+
+/**
  * Returns the name of the controller. Thus returns the pluralized value of 'action' from the Ext JS request. Also removes the
  * 'action' property from the Ext JS request.
  *
  * @return string Name of the controller.
  */
 	public function getController() {
-		if (null != $this->_Controller)
-		{
-			return $this->_Controller;
+		if (null != $this->_controller) {
+			return $this->_controller;
 		}
-		if (isset($this->_data['action']))
-		{
-			$this->_Controller = Inflector::pluralize($this->_data['action']);
+
+		$controller;
+		if (isset($this->_data['action'])) {
+			$controller = $this->_data['action'];
 			unset($this->_data['action']);
-		}
-		else if (isset($this->_data['extAction']))
-		{
-			$this->_Controller = Inflector::pluralize($this->_data['extAction']);
+		} else if (isset($this->_data['extAction'])) {
+			$controller = $this->_data['extAction'];
 			unset($this->_data['extAction']);
 			$this->_isFormRequest = true;
+		} else {
+			throw new BanchaException('Request does not contain an Ext.Direct action or extAction property.');
 		}
-		return $this->_Controller;
+
+		// extract plugin and pluralize controller name
+		list($plugin, $controller) = pluginSplit($controller, true);
+		$this->_controller =  Inflector::pluralize($controller);
+
+		if($this->_controller === 'Bancha') {
+			// special case, the Bancha controller is the Bancha plugin
+			$this->_plugin = 'Bancha';
+		} else {
+			// default case - remove '.' from plugin name
+			$this->_plugin = $plugin ? substr($plugin, 0, strlen($plugin)-1) : null;
+		}
+
+		return $this->_controller;
 	}
 
 /**
@@ -131,18 +159,18 @@ class BanchaRequestTransformer {
 		return $this->_isFormRequest;
 	}
 
-	/**
-	 * Returns the name of the expected model. Thus returns the value of 'action' from the Ext JS request.
-	 *
-	 * @return string Name of the model.
-	 */
-	public function getModelName() {
-		if($this->_modelName != null) {
-			return $this->_modelName;
+/**
+ * Returns the name of the expected model. Thus returns the value of 'action' from the Ext JS request.
+ *
+ * @return string Name of the model.
+ */
+	public function getModel() {
+		if($this->_model != null) {
+			return $this->_model;
 		}
 
-		$this->_modelName = Inflector::singularize($this->getController());
-		return $this->_modelName;
+		$this->_model = Inflector::singularize($this->getController());
+		return $this->_model;
 	}
 
 /**
@@ -268,15 +296,15 @@ class BanchaRequestTransformer {
 		// normal requests
 		if ($this->isArray($this->_data, '[data][0][data]') && isset($this->_data['data'][0]['data']['id'])) {
 			$pass['id'] = $this->_data['data'][0]['data']['id'];
-			unset($this->_data['data'][0]['data']['id']);
+			//unset($this->_data['data'][0]['data']['id']); keep the id in the data as well (otherwise if no data is send the array might not be created)
 		// read requests (actually these are malformed because the ExtJS root/Sencha Touch rootProperty is not set to 'data', but we can ignore this on reads)
 		} else if ($this->isArray($this->_data, '[data][0]') && isset($this->_data['data'][0]['id'])) {
 			$pass['id'] = $this->_data['data'][0]['id'];
-			unset($this->_data['data'][0]['id']);
+			//unset($this->_data['data'][0]['id']); keep the id in the data as well (otherwise if no data is send the array might not be created)
 		// form upload requests
 		} else if ($this->isFormRequest() && isset($this->_data['id'])) {
 			$pass['id'] = $this->_data['id'];
-			unset($this->_data['id']);
+			//unset($this->_data['id']); keep the id in the data as well (otherwise if no data is send the array might not be created)
 			$this->_isFormRequest = true;
 		} else if(2 === count($this->_data) && isset($this->_data['type']) && 'rpc' == $this->_data['type'] && isset($this->_data['data'])) {
 			$pass = $this->_data['data'];
@@ -332,7 +360,7 @@ class BanchaRequestTransformer {
 		if ($this->isArray($this->_data, '[data][0]') && isset($this->_data['data'][0]['sort'])) {
 			foreach ($this->_data['data'][0]['sort'] as $sort) {
 				if (isset($sort['property']) && isset($sort['direction'])) {
-					$order[$this->getModelName() . '.' . $sort['property']] = strtolower($sort['direction']);
+					$order[$this->getModel() . '.' . $sort['property']] = strtolower($sort['direction']);
 					$sort_field = $sort['property'];
 					$direction = $sort['direction'];
 				}
@@ -345,8 +373,13 @@ class BanchaRequestTransformer {
 		if ($this->isArray($this->_data, '[data][0][filter]')) {
 			$filters = $this->_data['data'][0]['filter'];
 
+			if(!empty($filters) && (!isset($filters[0]) || !is_array($filters[0]))) {
+				throw new BanchaException('The supplied filter conditions are not in the default Ext JS/Sencha Touch structure.');
+			}
+
+			// collect filter rules
 			foreach ($filters as $filter) {
-				$conditions[$this->getModelName() . '.' . $filter['property']] = $filter['value'];
+				$conditions[$this->getModel() . '.' . $filter['property']] = $filter['value'];
 			}
 		}
 
@@ -366,27 +399,24 @@ class BanchaRequestTransformer {
 	 * Ext.Direct writes the list of parameters to $data['data'].
 	 * Transform a Bancha request with model elements to cake structure,
 	 * otherwise just return the original response.
-	 * This function has no side-effects.
-	 *
 	 *
 	 * @param $modelName The model name of the current request
-	 * @param $data The input request data from Bancha-ExtJS
 	 */
-	public function transformDataStructureToCake($modelName, array $data) {
+	public function transformDataStructureToCake($modelName) {
 
 		// form uploads save all fields directly in the data array
 		if($this->isFormRequest()) {
-			if(isset($data['extType'])) {
-				unset($data['extType']);
+			if(isset($this->_data['extType'])) {
+				unset($this->_data['extType']);
 			}
 			return array(
-				$modelName => $data
+				$modelName => $this->_data
 			);
 		}
 
 		// for non-form requests
 
-		if($this->isArray($data, '[data][0][data][0]')) {
+		if($this->isArray($this->_data, '[data][0][data][0]')) {
 			// looks like someone is using the store with batchActions:true
 			if(Configure::read('Bancha.allowMultiRecordRequests') != true) {
 				throw new BanchaException( // this is not very elegant, till it is not catched by the dispatcher, keep it anyway?
@@ -399,31 +429,32 @@ class BanchaRequestTransformer {
 			}
 			// parse multi-request
 			$result = array();
-			foreach($data['data'][0]['data'] as $entry) {
+			foreach($this->_data['data'][0]['data'] as $entry) {
 				$result[] = array(
 					$modelName => $entry
 				);
 			}
-			$data = $result;
-		} else if($this->isArray($data,'[data][0][data]')) {
+			$this->_data = $result;
+		} else if($this->isArray($this->_data,'[data][0][data]')) {
 			// this is standard extjs-bancha structure, transform to cake
-			$data = array(
-				$modelName => $data['data'][0]['data']
-			);
+			$this->_data[$modelName] = $this->_data['data'][0]['data'];
+			unset($this->_data['data']);
+			
 			// add request doesn't have an id in cake...
 			if($this->getAction()=='add') {
 				// ... so delete it
-				unset($data[$modelName]['id']);
+				unset($this->_data[$modelName]['id']);
 			}
-		} else if($this->isArray($data, '[data]')) {
+		} else if($this->isArray($this->_data, '[data]')) {
 			// some arbitrary data from ext to just pass through
-			$data = $data['data'];
+			$this->_data = $this->_data['data'];
 		} else {
 			// do data at all given
-			$data = array();
+			$this->_data = array();
 		}
-		return $data;
+		return $this->_data;
 	}
+
 /**
  * Returns the data array from the Ext JS request without all special elements. Therefore it calls all the get*()
  * methods in the class, which not only return the values but also clean the request.
@@ -441,7 +472,7 @@ class BanchaRequestTransformer {
 		$this->getPaging();
 
 		// prepare and return data
-		return $this->transformDataStructureToCake($this->getModelName(), $this->_data);
+		return $this->transformDataStructureToCake($this->getModel());
 	}
 
 }

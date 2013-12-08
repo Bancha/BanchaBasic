@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -28,13 +28,11 @@ Ext.define('Bancha.data.Model', {
     extend: 'Ext.data.Model',
 
     requires: [
+        'Bancha.Main',
         'Ext.direct.Manager',
         'Bancha.data.writer.JsonWithDateTime',
         'Bancha.data.writer.ConsistentJson',
         'Bancha.Remoting'
-    ],
-    uses: [
-        'Bancha.Main'
     ],
 
     /**
@@ -43,6 +41,16 @@ Ext.define('Bancha.data.Model', {
      * This is not yet supported! See http://docs.banchaproject.org/resources/Roadmap.html
      */
     forceConsistency: false,
+
+    /**
+     * @cfg {Boolean|String}
+     * If you are using Bancha with Sencha Architect, setting this to truthy will tell
+     * Bancha to set all fields, validation rules, associations and the proxy based
+     * on the CakePHP model.
+     * If your model is inside a plugin, please set this value to the full name, e.g.
+     * "MyPlugin.MyModel"
+     */
+    bancha: false,
 
     /**
      * For Ext JS:
@@ -97,11 +105,22 @@ Ext.define('Bancha.data.Model', {
          * @param {String} modelCls The model to augment
          * @param {Object} extJsOnClassExtendedData If this is executed from an Ext JS context
          *                                          this is the data argument from onClassExtended
+         * @param {String|undefined} modelName (optional) The model name, may be enforced from models bancha property
          * @return void
          */
-        applyCakeSchema: function(modelCls, extJsOnClassExtendedData) {
-            var modelName = modelCls.getName().split('.').pop(), // CakePHP model name, e.g. "User"
-                config;
+        applyCakeSchema: function(modelCls, extJsOnClassExtendedData, modelName) {
+            var config;
+
+            if(!modelName && Bancha.modelNamespace+'.'===modelCls.getName().substr(0, Bancha.modelNamespace.length+1)) {
+                // this is a default Bancha integration (not Sencha Architect)
+                // get the CakePHP model name by removing the namespace, e.g. "User"
+                modelName = modelCls.getName().substr(Bancha.modelNamespace.length+1);
+            }
+            if(!modelName) {
+                // since the namespace don't match, this is a Sencha Architect integration
+                // with a plugin-free model name
+                modelName = modelCls.getName().split('.').pop();
+            }
 
             if(!Bancha.initialized) {
                 Bancha.init();
@@ -171,7 +190,7 @@ Ext.define('Bancha.data.Model', {
             }
 
             // set the Bancha proxy
-            modelCls.setProxy(this.createBanchaProxy(modelCls));
+            modelCls.setProxy(this.createBanchaProxy(modelCls, modelName));
         },
         /**
          * To display nicer debugging messages, i debug mode this returns
@@ -221,26 +240,14 @@ Ext.define('Bancha.data.Model', {
                 formHandler: false
             };
             // fake the execution method
-            fakeFn.directCfg.method = function() {
-                Ext.Error.raise({
-                    plugin: 'Bancha',
-                    modelName: modelName,
-                    msg: [
-                        'Bancha: Tried to call '+modelName+'.'+method+'(...), ',
-                        'but the server-side has not implemented ',
-                        modelName+'sController->'+ map[method]+'(...). ',
-                        '(If you have special inflection rules, the server-side ',
-                        'is maybe looking for a different controller name)'
-                    ].join('')
-                });
-            };
+            fakeFn.directCfg.method = fakeFn;
+            fakeFn.getArgs = fakeFn;
             //</debug>
 
             return fakeFn;
         },
-        createBanchaProxy: function(model) {
-            var modelName = model.getName().split('.').pop(), // CakePHP model name, e.g. "User"
-                stub,
+        createBanchaProxy: function(model, modelName) {
+            var stub,
                 configWithRootPropertySet;
 
             // Sencha Touch uses the new rootProperty property for configuring the reader and writer
@@ -259,7 +266,7 @@ Ext.define('Bancha.data.Model', {
             }
 
             // create the metadata
-            stub = Bancha.getStubsNamespace()[modelName];
+            stub = Bancha.getStub(modelName);
             return { // the proxy configuration
                 type: 'direct', // TODO batch requests: http://www.sencha.com/forum/showthread.php?156917
                 // don't batch requests on the store level, they will be batched

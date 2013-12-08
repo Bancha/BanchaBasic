@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -80,7 +80,7 @@ Ext.define('Bancha.Remoting', {
 
     /**
      * @property {Function} onAuthException
-     * You can define your custom authentification error handler. This function
+     * You can define your custom authentication error handler. This function
      * is triggered every time the CakePHP AuthComponent prevented the
      * execution of a Bancha request.
      *
@@ -97,8 +97,8 @@ Ext.define('Bancha.Remoting', {
         var msg = [
             '<b>'+message+'</b><br />',
             'This is triggerd by your AuthComponent configuration. ',
-            'You can add your custom authentification error handler ',
-            'by setting <i>Bancha.onAuthException(exceptionType,message)</i>.<br />'
+            'You can add your custom authentication error handler ',
+            'by setting <i>Bancha.Remoting.onAuthException(exceptionType,message)</i>.<br />'
         ].join('');
 
         // Show the error and then throw an exception
@@ -110,7 +110,13 @@ Ext.define('Bancha.Remoting', {
             icon: Ext.MessageBox.ERROR,
             buttons: Ext.Msg.OK
         });
-        throw new Error(msg);
+
+        //<debug>
+        Ext.Error.raise({
+            plugin: 'Bancha',
+            msg: msg
+        });
+        //</debug>
     },
 
     /**
@@ -156,9 +162,11 @@ Ext.define('Bancha.Remoting', {
             icon: Ext.MessageBox.ERROR,
             buttons: Ext.Msg.OK
         });
+        //<debug>
         Ext.Error.raise({
             plugin: 'Bancha',
             msg: 'REMOTE EXCEPTION: '+operation.getError()
         });
+        //</debug>
     }
 });

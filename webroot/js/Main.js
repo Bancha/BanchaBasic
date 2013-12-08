@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -65,7 +65,7 @@ if(Ext.versions.extjs) {
  * Uses in objectFromPath below
  * See http://www.sencha.com/forum/showthread.php?273799
  */
-/* jshint bitwise:false */
+/* jshint bitwise:false, maxcomplexity:20 */
 if ('function' !== typeof Array.prototype.reduce) {
     Array.prototype.reduce = function(callback, optInitialValue){
         'use strict';
@@ -103,7 +103,7 @@ if ('function' !== typeof Array.prototype.reduce) {
         return value;
     };
 }
-/* jshint bitwise:true */
+/* jshint bitwise:true, maxcomplexity:10 */
 /**
  * @class Bancha
  *
@@ -162,7 +162,6 @@ Ext.define('Bancha', {
     // If you want to include Bancha using the Microloader use this class name
     // instead of simply 'Bancha', sine this is also a namespace
     alternateClassName: [
-        // TODO refactor this to not need it anymore
         'Bancha.Main'
     ],
 
@@ -208,7 +207,7 @@ Ext.define('Bancha', {
      * @property
      * Bancha Project version
      */
-    version: '2.1.0',
+    version: '2.2.0',
     /**
      * @property
      * The local path to the Bancha remote api (Default: 'Bancha.REMOTE_API')
@@ -323,23 +322,35 @@ Ext.define('Bancha', {
         return this.objectFromPath(this.namespace);
     },
     /**
-     * Returns remote stubs for a given cake controller name in singular
+     * Returns remote stubs for a given cake controller name in singular. 
+     * You may add a plugin namespace in dot notation, e.g. 'MyPlugin.MyController'
+     * 
      * @param {String} stubName the cakephp controller name in singular
      * @return {Object} The stub if already defined, otherwise undefined
      */
-    getStub: function(stubName) { // TODO When refactoring, make sure that getStub requires 'Bancha.REMOTE_API'
+    getStub: function(stubName) {
         if(!Bancha.initialized) {
             Bancha.init();
         }
+
+        // Another happy place where Ext JS and Sencha Touch implementation differs
+        // Ext JS creates a new namespace, which Sencha Touch keep all as model name
+        // For TestPlugin.PluginTest this would be
+        // in Ext JS (since 4.2)         : TestPlugin: {PluginTest: {...}}
+        // in Sencha Touch and Ext JS<4.2: 'TestPlugin.PluginTest': {...}
+
         //<debug>
-        if(!Ext.isObject(Bancha.getStubsNamespace()[stubName])) {
+        if(!Ext.isObject(this.getStubsNamespace()[stubName]) && // Sencha Touch
+           !Ext.isObject(this.objectFromPath(stubName, this.getStubsNamespace()))) { // Ext JS
             Ext.Error.raise({
                 plugin: 'Bancha',
                 msg: 'Bancha: The Stub '+stubName+' doesn\'t exist'
             });
         }
         //</debug>
-        return Bancha.getStubsNamespace()[stubName] || undefined;
+        return this.getStubsNamespace()[stubName] || // Sencha Touch
+               this.objectFromPath(stubName, this.getStubsNamespace()) || // Ext JS
+               undefined;
     },
     /**
      * @private
@@ -923,7 +934,10 @@ Ext.define('Bancha', {
     isRemoteModel: function(modelName) { // TODO refactor to isRemotableModel
         return (
                 Ext.isObject(this.getStubsNamespace()) &&
-                Ext.isObject(this.getStubsNamespace()[modelName])
+                (
+                    Ext.isObject(this.getStubsNamespace()[modelName]) || // For Sencha Touch, see getStub
+                    Ext.isObject(this.objectFromPath(modelName, this.getStubsNamespace())) // for Ext JS
+                )
                 ) ? true : false;
     },
 
@@ -1295,9 +1309,6 @@ Ext.define('Bancha', {
      * Language support for Bancha.
      */
     Localizer: {
-        // add defaultLang property to not load the default language
-        // add logic to only try to load a language twice -> add error ahndling
-        // throw warnings when something can not be translated
         /**
          * @property
          * The default language code for translations.

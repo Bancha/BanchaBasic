@@ -686,6 +686,24 @@ class BanchaRemotableBehavior extends ModelBehavior {
 	}
 
 /**
+ *	Prepare an array of Model's validation error messages
+ *  @param model $Model Model using this behavior
+ *	@return String
+ */
+	protected function _getValidationErrors(Model $Model) {
+		// Initialize array of validation errors
+		$list = array();
+
+		// Prepare a list of validation errors
+		foreach ($Model->validationErrors as $field => $val) {
+			$list[$field] = implode(', ', $val);
+		}
+
+		// Return prepared list of errors
+		return $list;
+	}
+
+/**
  * Custom validation rule for uploaded files.
  *
  *  @param Array $data CakePHP File info.
@@ -749,17 +767,8 @@ class BanchaRemotableBehavior extends ModelBehavior {
  */
 	public function getLastSaveResult(Model $Model) {
 		if(empty($this->_result[$Model->alias])) {
-			// there were some validation errors, send those
-			if(!$Model->validates()) {
-				$msg =  "The record doesn't validate. Since Bancha can't send validation errors to the ".
-						"client yet, please handle this in your application stack.";
-				if(Configure::read('debug') > 0) {
-					$msg .= "<br/><br/><pre>Validation Errors:\n".print_r($Model->invalidFields(),true)."</pre>";
-				}
-				throw new BadRequestException($msg);
-			}
 
-			// otherwise send error
+			// throw an exception for empty response
 			throw new BanchaException(
 				'There was nothing saved to be returned. Probably this occures because the data '.
 				'you send from ExtJS was malformed. Please use the Bancha.model.ModelName '.
@@ -768,6 +777,7 @@ class BanchaRemotableBehavior extends ModelBehavior {
 				'(Sencha Touch) is set to "data".');
 		}
 
+		// otherwise return result, that is set in the saveFields() method
 		return $this->_result[$Model->alias];
 	}
 
@@ -794,10 +804,12 @@ class BanchaRemotableBehavior extends ModelBehavior {
 			$fields = $Model->getColumnTypes();
 			// check if at least one field is saved to the database
 			try {
-				foreach($fields as $field => $type) {
-					if(array_key_exists($field, $Model->data[$Model->name])) {
-						$valid=true;
-						break;
+				if(isset($Model->data[$Model->name]) && is_array($Model->data[$Model->name])) {
+					foreach($fields as $field => $type) {
+						if($field!==$Model->primaryKey && array_key_exists($field, $Model->data[$Model->name])) {
+							$valid=true;
+							break;
+						}
 					}
 				}
 			} catch (Exception $e) {
@@ -863,7 +875,7 @@ class BanchaRemotableBehavior extends ModelBehavior {
  * @param Model $Model the model using this behavior
  * @param Array $data the data to save (first user argument)
  * @param Array $options the save options
- * @return Array|Boolean The result of the save operation
+ * @return Array|Boolean The result of the save operation (same as in Model->save($data))
  */
 	public function saveFields(Model $Model, $data=null, $options=array()) {
 		// overwrite config for this commit
@@ -875,20 +887,28 @@ class BanchaRemotableBehavior extends ModelBehavior {
 		if($data) {
 			$Model->set($data);
 		}
-		if(!$Model->validates()) {
-			$msg =  "The record doesn't validate. Since Bancha can't send validation errors to the ".
-					"client yet, please handle this in your application stack.";
-			if(Configure::read('debug') > 0) {
-				$msg .= "<br/><br/><pre>Validation Errors:\n".print_r($Model->invalidFields(),true)."</pre>";
-			}
-			throw new BadRequestException($msg);
-		}
 
-		$this->_result[$Model->alias] = $Model->save($Model->data,$options);
+		// try to validate data
+		$success = true;
+		if(!$Model->validates()) {
+			// prepare extJs formatted response of validation errors on failure to validate
+			$this->_result[$Model->alias] = array(
+				'success' => false,
+				'errors' => $this->_getValidationErrors($Model)
+			);
+			$success = false;
+
+		} else {
+			// set result with saved record
+			$this->_result[$Model->alias] = $Model->save($Model->data,$options);
+			$success = !empty($this->_result[$Model->alias]);
+		}
 
 		// set back
 		$this->_settings[$Model->alias]['useOnlyDefinedFields'] = $config;
-		return $this->_result[$Model->alias];
+
+		// return saved record data if not empty and valid, otherwise false
+		return $success ? $this->_result[$Model->alias] : false;
 	}
 
 /**

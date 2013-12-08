@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */

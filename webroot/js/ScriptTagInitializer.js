@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -36,6 +36,15 @@
 
 //<debug>
 (function() { //closure over variables
+
+    if(!window.Ext) {
+        // Sencha Architect should exclude scripts marked with x-bootstrap from production builds
+        // Currently this works fine in Sencha Touch, but does not work in Ext JS.
+        // Since at this point in time not even Ext JS is ready we can simply make the 
+        // ScriptTagInitialier do nothing by adding this if clause. There is a minimal overhead,
+        // which is ok until Sencha fixed this bug.
+        return;
+    }
 
     if(!Ext.Loader) {
         throw 'Bancha expects the Ext.Loaded to be loaded when starting the ScriptTagInitializer.js';
@@ -69,7 +78,9 @@
 
     // Ext.Loader#getConfig is used instead of Ext.Loader#getPath to be sure
     // that it actually is set, not generated
-    if(Ext.Loader.getConfig('paths').Bancha) {
+    // if a spacific path for each class is set, this is Sencha Architect 3
+    var paths = Ext.Loader.getConfig('paths');
+    if(paths.Bancha && !paths['Bancha.Initializer']) {
         logWarning([
             'Bancha: You are using the ScriptTagInitializer, but the path to ',
             'Bancha is already set. This looks like you should include the ',
@@ -103,15 +114,33 @@
             plugin: 'Bancha',
             msg: [
                 'Bancha: You included the ScriptTagInitializer, but there is ',
-                'no such script tag in the DOM. please make sure you have ',
-                'configured everything correct. If this is really an issue, ',
-                'please contact the Bancha support via ',
-                'support@banchaproject.org!'
+                'no such script tag in the DOM. Please make sure you have ',
+                'configured everything correct. Probably you are using Sencha ',
+                'Architect, and forgot to check the x-bootstrap config for the ',
+                'ScriptTagInitializer. If not, please contact the Bancha ',
+                'support via support@banchaproject.org!'
             ].join('')
         });
     }
 
     Ext.Loader.setPath('Bancha', path);
+
+    if(paths['Bancha.Initializer']) {
+        // Sencha Architect 3
+        // Since there is a specific path for each file, Sencha Architect 3 with Sencha Cmd 4 is used
+        // The new Sencha Cmd 4 writes all class pathes in bootstrap.js. Since Bancha files are outside
+        // the webroot, the filesystem and dynamic web-loaded pathes don't match.
+        // So reset all those pathes for dynamic loading.
+        for (var cls in paths) {
+            if (paths.hasOwnProperty(cls) && cls.substr(0,7)==='Bancha.') {
+                // for dynamic loading remove static class path definitions
+                delete paths[cls];
+            }
+        }
+
+        // otherwise the class path aliases use the basepath to load Bancha
+        delete Ext.ClassManager.maps.alternateToName['Bancha.Main'];
+    }
 
     Ext.syncRequire('Bancha.Initializer');
 

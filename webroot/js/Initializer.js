@@ -8,7 +8,7 @@
  * @link          http://banchaproject.org Bancha Project
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -79,12 +79,16 @@ Ext.define('Bancha.Initializer', {
                 if(!prototype || !prototype.isModel) {
                     return; // this is not a model instance
                 }
-                if(!prototype.getBancha || (prototype.getBancha()!==true && prototype.getBancha()!=='true')) {
+                if(!prototype.getBancha || (!prototype.getBancha() || prototype.getBancha()==='false')) {
                     return; // there is no bancha config set to true
                 }
 
+                // if bancha property is the model name, enforce it
+                var modelName = (typeof prototype.getBancha()==='string' && prototype.getBancha()!=='true') ?
+                                prototype.getBancha() : undefined;
+
                 // inject schema
-                Bancha.data.Model.applyCakeSchema(cls);
+                Bancha.data.Model.applyCakeSchema(cls, undefined, modelName);
             }, true);
 
         } else {
@@ -101,11 +105,14 @@ Ext.define('Bancha.Initializer', {
              */
             Ext.data.Model.$onExtended.unshift({
                 fn: function(cls, data, hooks) {
-                    if(data.bancha !== true && data.bancha !== 'true') {
+                    if(!data.bancha || data.bancha === 'false') {
                         return; // not a Bancha model
                     }
 
-                    Bancha.data.Model.applyCakeSchema(cls, data);
+                    // if bancha property is the model name, enforce it
+                    var modelName = (typeof data.bancha==='string' && data.bancha!=='true') ? data.bancha : undefined;
+
+                    Bancha.data.Model.applyCakeSchema(cls, data, modelName);
                 },
                 scope: this
             });

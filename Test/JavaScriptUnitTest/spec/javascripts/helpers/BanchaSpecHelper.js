@@ -8,7 +8,7 @@
  * @copyright     Copyright 2011-2013 codeQ e.U.
  * @link          http://banchaproject.org Bancha Project
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.1.0
+ * @version       Bancha v 2.2.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -38,6 +38,10 @@ BanchaSpecHelper.SampleData.remoteApiDefinition = {
         },{
             'name':'destroy',
             'len':1
+        }],
+        'TestPlugin.PluginTest': [{
+            'name':'exposedTestMethod',
+            'len':0
         }]
     },
     metadata: {
@@ -71,7 +75,16 @@ BanchaSpecHelper.SampleData.remoteApiDefinition = {
                 property: 'name',
                 direction: 'ASC'
             }]
-        } //eo User
+        }, //eo User
+        'TestPlugin.PluginTest': {
+            idProperty: 'id',
+            fields: [
+                {name:'id', type:'int'}
+            ],
+            associations: [],
+            validations: [],
+            sorters: []
+        } //eo PluginTest
     }
 };
 

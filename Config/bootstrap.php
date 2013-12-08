@@ -21,7 +21,7 @@ Inflector::rules('plural', array('/^Bancha$/i' => 'Bancha'));
 /**
  * This is the current Bancha release version.
  */
-Configure::write('Bancha.version', '2.1.0');
+Configure::write('Bancha.version', '2.2.0');
 
 /**
  * By default the Ext JS or Sencha Touch web app is on the same domain

@@ -31,7 +31,7 @@
 /**
  * this is for the check setup page
  */
-if (isset($_GET['setup-check']) && $_GET['setup-check']) {
+if(isset($_GET['setup-check']) && $_GET['setup-check']) {
 	// send as javascript
 	header('Content-type: text/javascript');
 	exit('{"BanchaDispatcherIsSetup":true}');
