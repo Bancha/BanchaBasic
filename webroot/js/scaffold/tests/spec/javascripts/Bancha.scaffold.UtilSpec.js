@@ -1,7 +1,7 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -9,14 +9,14 @@
  * Bancha.scaffold.Util tests
  *
  * @package       Bancha.scaffold.tests
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 describe("Bancha.scaffold.Util tests",function() {
@@ -138,4 +138,43 @@ describe("Bancha.scaffold.Util tests",function() {
         }];
         expect(util.replaceButtonPlaceHolders(input, {}, scope)).toEqual(expected);
     });
+
+    it("should return a boolean when calling isModel, given a model or model name", function() {
+        // return null if model doesn't exist
+        expect(util.isModel(null)).toBeFalsy();
+        expect(util.isModel('RANDOM_NONSENSE')).toBeFalsy();
+
+        // return the class is a model is given
+        Ext.define('Bancha.model.UtilSpecTestModel1', {
+            extend: 'Ext.data.Model'
+        });
+        expect(util.isModel('Bancha.model.UtilSpecTestModel1')).toBeTruthy();
+        expect(util.isModel(Bancha.model.UtilSpecTestModel1)).toBeTruthy();
+
+        // return null if a class, but not a model
+        Ext.define('Bancha.model.UtilSpecTestClass1', {
+        });
+        expect(util.isModel('Bancha.model.UtilSpecTestClass1')).toBeFalsy();
+        expect(util.isModel(Bancha.model.UtilSpecTestClass1)).toBeFalsy();
+    });
+
+    it("should return a model given when calling getModel, given a model or model name", function() {
+        // return null if model doesn't exist
+        expect(Ext.Function.bind(util.getModel, util, [null])).toThrow();
+        expect(Ext.Function.bind(util.getModel, util, ['RANDOM_NONSENSE'])).toThrow();
+
+        // return the class is a model is given
+        Ext.define('Bancha.model.UtilSpecTestModel2', {
+            extend: 'Ext.data.Model'
+        });
+        expect(util.getModel('Bancha.model.UtilSpecTestModel2')).toEqual(Bancha.model.UtilSpecTestModel2);
+        expect(util.getModel(Bancha.model.UtilSpecTestModel2)).toEqual(Bancha.model.UtilSpecTestModel2);
+
+        // return null if a class, but not a model
+        Ext.define('Bancha.model.UtilSpecTestClass2', {
+        });
+        expect(Ext.Function.bind(util.getModel, util, ['Bancha.model.UtilSpecTestClass2'])).toThrow();
+        expect(Ext.Function.bind(util.getModel, util, [Bancha.model.UtilSpecTestClass2])).toThrow();
+    });
+
 });

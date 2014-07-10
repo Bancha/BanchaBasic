@@ -2,12 +2,12 @@
 /**
  * BanchDebugExceptionsTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.System
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -26,24 +26,39 @@ require_once dirname(__FILE__) . '/ArticlesController.php';
  */
 class BanchaDebugExceptionsTest extends CakeTestCase {
 
-	private $originalOrigin;
-	private $originalDebugLevel;
+	protected $_originalDebugLevel;
 
+/**
+ * setUp method
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalDebugLevel = Configure::read('debug');
+		$this->_originalDebugLevel = Configure::read('debug');
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the debug level
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 	}
 
-	// helper method
-	private function getResultForMethod($method,$data=array()) {
+/**
+ * Helper method to fake an request
+ *
+ * @param string $method The method to execute on the DebugException controller
+ * @param array  $data   The data to pass
+ * @return array $responses
+ */
+	protected function _getResultForMethod($method, $data = array()) {
 		$rawPostData = json_encode(array(
 			'action'		=> 'DebugException',
 			'method'		=> $method,
@@ -67,10 +82,11 @@ class BanchaDebugExceptionsTest extends CakeTestCase {
 /**
  * When a controller method doesn't return anything, throw an exception.
  * This is implemented in BanchaResponseTransformer::transform()
+ *
+ * @return void
  */
 	public function testNoMethodResultException() {
-
-		$responses = $this->getResultForMethod('getNoResult');
+		$responses = $this->_getResultForMethod('getNoResult');
 
 		// check exception
 		$this->assertEquals('exception', $responses[0]->type);
@@ -82,10 +98,11 @@ class BanchaDebugExceptionsTest extends CakeTestCase {
  * If this is happening tell the developer that he probably did an error.
  * This exception is trown in BanchaRequestTransformer::transformDataStructureToCake()
  *
+ * @return void
  * @expectedException BanchaException
  */
 	public function testMultipleRecordInputException() {
-		$this->getResultForMethod('returnTrue', array(array(
+		$this->_getResultForMethod('returnTrue', array(array(
 			'data' => array(
 				array( // first
 					'id' => 1,
@@ -98,19 +115,19 @@ class BanchaDebugExceptionsTest extends CakeTestCase {
 			)
 		)));
 	}
-
 
 /**
  * See testMultipleRecordInputException()
  * See also BanchaRequestTransformerTest::testTransformDataStructureToCake_MultipleRecords
+ *
+ * @return void
  */
 	public function testDeactivatedMultipleRecordInputException() {
-
 		// the developer can deactivate this by setting this config
-		Configure::write('Bancha.allowMultiRecordRequests',true);
+		Configure::write('Bancha.allowMultiRecordRequests', true);
 
 		// we expect no exception
-		$this->getResultForMethod('returnTrue', array(array(
+		$this->_getResultForMethod('returnTrue', array(array(
 			'data' => array(
 				array( // first
 					'id' => 1,
@@ -123,11 +140,8 @@ class BanchaDebugExceptionsTest extends CakeTestCase {
 			)
 		)));
 	}
+
 }
-
-
-
-
 
 /**
  * DebugExceptionsController, has many errors a developer can make
@@ -139,15 +153,18 @@ class DebugExceptionsController extends ArticlesController {
 
 /**
  * User forgot to set a return value
+ * 
+ * @return void
  */
 	public function getNoResult() {
 	}
 
 /**
  * simple test function
+ * 
+ * @return boolean true
  */
 	public function returnTrue() {
 		return true;
 	}
 }
-

@@ -2,12 +2,12 @@
 /**
  * BanchaRemotableBehaviorTest test models file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Model
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
@@ -23,17 +23,22 @@
  * @since         Bancha v 0.9.0
  */
 class TestArticle extends CakeTestModel {
+
 	public $name = 'Article';
+
+	public $displayField = 'title';
+
 	public $useTable = false;
+
 	public $order = array('name.order' => 'ASC');
 
 	protected $_schema = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'title' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'date' => array('type' => 'datetime', 'null' => true, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'body' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'user_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
+		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
+		'title' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'date' => array('type' => 'datetime', 'null' => true, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
+		'body' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => null, 'collate' => null, 'comment' => ''),
+		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
 	//	'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 	//	'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -56,12 +61,14 @@ class TestArticle extends CakeTestModel {
 
 	// used in testGetAssociated
 	// tese rules are not fully valid
+
 	public $belongsTo = array(
 		'User' => array(
 			'className' => 'User',
 			'foreignKey' => 'user_id',
 		),
 	);
+
 	public $hasMany = array(
 		'ArticleTag',
 		'HasManyModel' => array(
@@ -69,6 +76,7 @@ class TestArticle extends CakeTestModel {
 			'foreignKey' => 'article_id',
 		),
 	);
+
 	public $hasAndBelongsToMany = array(
 		'Tag' => array(
 			'className' => 'Tag',
@@ -87,22 +95,24 @@ class TestArticle extends CakeTestModel {
  * @since         Bancha v 2.0.0
  */
 class TestArticleNoValidationRules extends CakeTestModel {
+
 	public $name = 'ArticleNoValidationRules';
+
 	public $useTable = false;
+
 	public $order = array('name.order' => 'ASC');
 
 	protected $_schema = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'title' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'date' => array('type' => 'datetime', 'null' => true, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'body' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'user_id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
+		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
+		'title' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'date' => array('type' => 'datetime', 'null' => true, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
+		'body' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => null, 'collate' => null, 'comment' => ''),
+		'user_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
 	//	'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 	//	'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
 } //eo TestArticleNoValidationRules
-
 
 /**
  * This model is used inside
@@ -113,21 +123,24 @@ class TestArticleNoValidationRules extends CakeTestModel {
  * @since         Bancha v 2.0.0
  */
 class TestUser extends CakeTestModel {
+
 	public $name = 'User';
+
 	public $useTable = false;
+
 	public $order = array('TestUser.name' => 'ASC');
 
 	protected $_schema = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'login' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'created' => array('type' => 'datetime', 'null' => false, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'email' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'avatar' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'weight' => array('type' => 'float', 'null' => false, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'heigth' => array('type' => 'float', 'null' => true, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'a_or_ab_only' => array('type' => 'string', 'null' => true, 'default' => NULL, 'length' => NULL, 'collate' => NULL, 'comment' => ''),
+		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
+		'login' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'published' => array('type' => 'boolean', 'null' => true, 'default' => false, 'length' => null, 'collate' => null, 'comment' => ''),
+		'name' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'created' => array('type' => 'datetime', 'null' => false, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
+		'email' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'avatar' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'weight' => array('type' => 'float', 'null' => false, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
+		'heigth' => array('type' => 'float', 'null' => true, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
+		'a_or_ab_only' => array('type' => 'string', 'null' => true, 'default' => null, 'length' => null, 'collate' => null, 'comment' => ''),
 	//	'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 	//	'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_general_ci', 'engine' => 'InnoDB')
 	);
@@ -143,17 +156,16 @@ class TestUser extends CakeTestModel {
 		'id' => array(
 			'rule' => 'numeric', // rule as string
 			'precision' => 0,
-			'required'   => true, // create only one present rule
+			'required' => true, // create only one present rule
 			'allowEmpty' => true,
 		),
 		'avatar' => array(
-		   'rule' => array('minLength', 8), // rule as array with argument
+			'rule' => array('minLength', 8), // rule as array with argument
 			'required' => true, // currently simply mapped to present rule
 			'allowEmpty' => false,
 		),
 	);
 }
-
 
 /**
  * This model is used inside
@@ -164,8 +176,8 @@ class TestUser extends CakeTestModel {
  * @since         Bancha v 2.0.0
  */
 class TestUserCoreValidationRules extends TestUser {
-	public $name = 'UserCoreValidationRules';
 
+	public $name = 'UserCoreValidationRules';
 
 	public $validate = array(
 		// Check all Core Validation rules
@@ -181,49 +193,48 @@ class TestUserCoreValidationRules extends TestUser {
 				'message' => "Login is already taken."
 			),
 			'loginRule-2' => array(
-				'rule'	 => 'alphaNumeric',
+				'rule' => 'alphaNumeric',
 				'required' => true,
-				'message'  => 'Alphabets and numbers only'
+				'message' => 'Alphabets and numbers only'
 			),
 			'between' => array(
-				'rule'	=> array('between', 5, 15),
+				'rule' => array('between', 5, 15),
 				'message' => 'Between 5 to 15 characters'
 			)
 		),
 		'published' => array(
 			'rule' => 'boolean',
 		),
-	   'name' => array(
+		'name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty')
 			),
 			'minLength' => array(
-				'rule' => array('minLength',3),
+				'rule' => array('minLength', 3),
 			),
 			'maxLength' => array(
-				'rule' => array('maxLength',64),
+				'rule' => array('maxLength', 64),
 			),
 		),
 		'email' => array(
-			'rule'    => array('email', true), // second argument (host resolutin) can only be checked on the server
+			'rule' => array('email', true), // second argument (host resolutin) can only be checked on the server
 			'message' => 'Please supply a valid email address.'
 		),
 		'avatar' => array(
 			'file' => array( // this validation rule forces Bancha.scaffold in the frontend to render a fileuploadfield
-				 'rule' => array('file') // TODO Does this work?
-			 ),
+				'rule' => array('file') // TODO Does this work?
+			),
 			'extension' => array(
-				 'rule' => array('extension', array('gif', 'jpeg', 'png', 'jpg')),
-				 'message' => 'Please supply a valid image.'
-			 ),
+				'rule' => array('extension', array('gif', 'jpeg', 'png', 'jpg')),
+				'message' => 'Please supply a valid image.'
+			),
 		),
 		'a_or_ab_only' => array(
-			'rule'    => array('inList', array('a', 'ab')),
+			'rule' => array('inList', array('a', 'ab')),
 			'message' => 'This file can only be "a" or "ab" or undefined.'
 		),
 	);
 }
-
 
 /**
  * TestingSaveArticleModel class
@@ -233,6 +244,7 @@ class TestUserCoreValidationRules extends TestUser {
  * @since         Bancha v 0.9.3
  */
 class ArticleForTestingSaveBehavior extends CakeTestModel {
+
 /**
  * useTable property
  *
@@ -246,6 +258,7 @@ class ArticleForTestingSaveBehavior extends CakeTestModel {
  * @var string 'ArticleForTestingSaveBehavior'
  */
 	public $name = 'ArticleForTestingSaveBehavior';
+
 /**
  * schema property
  *
@@ -253,14 +266,13 @@ class ArticleForTestingSaveBehavior extends CakeTestModel {
  * @access protected
  */
 	protected $_schema = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'collate' => NULL, 'key' => 'primary', 'collate' => NULL, 'comment' => '', 'length'=>8),
-		'title' => array('type' => 'string', 'null' => true, 'default' => NULL,'collate' => NULL,  'length' => 64, 'comment' => ''),
+		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'collate' => null, 'key' => 'primary', 'collate' => null, 'comment' => '', 'length' => 8),
+		'title' => array('type' => 'string', 'null' => true, 'default' => null, 'collate' => null, 'length' => 64, 'comment' => ''),
 		'date' => array('type' => 'date', 'null' => '1', 'default' => '', 'length' => ''),
-		'body' => array('type' => 'text', 'null' => true, 'default' => NULL,'collate' => NULL,  'comment' => ''),
-		'published' => array('type' => 'integer', 'null' => false, 'default' => 0, 'comment' => '', 'length'=>1),
-		'user_id' => array('type' => 'integer', 'null' => false, 'default' => 0, 'comment' => '', 'length'=>8),
+		'body' => array('type' => 'text', 'null' => true, 'default' => null, 'collate' => null, 'comment' => ''),
+		'published' => array('type' => 'integer', 'null' => false, 'default' => 0, 'comment' => '', 'length' => 1),
+		'user_id' => array('type' => 'integer', 'null' => false, 'default' => 0, 'comment' => '', 'length' => 8),
 	);
-
 
 /**
  * we are testing the bancha remotable behavior
@@ -296,20 +308,24 @@ class ArticleForTestingSaveBehavior extends CakeTestModel {
 		),
 	);
 
-	/**
-	 * custom function to test bancha remotable behavior
-	 */
-	function customFunctionLimitDuplicates($check, $limit) {
-		// $check will have value: array('name' => 'some-value')
-		// $limit will have value: 25
-		$existing_names = $this->find('count', array(
+/**
+ * Custom function to test bancha remotable behavior.
+ *
+ * @param array $check  Called by CakePHP, will get value
+ *                      array('name' => 'some-value')
+ * @param string $limit Called by CakePHP, will get value
+ *                      25
+ * @return boolean      True if valid
+ */
+	public function customFunctionLimitDuplicates($check, $limit) {
+		$existingNames = $this->find('count', array(
 			'conditions' => $check,
 			'recursive' => -1
 		));
-		return $existing_names < $limit;
+		return $existingNames < $limit;
 	}
-}
 
+}
 
 /**
  * This model is used inside
@@ -320,49 +336,51 @@ class ArticleForTestingSaveBehavior extends CakeTestModel {
  * @since         Bancha v 2.1.0
  */
 class UserForTestingLastSaveResult extends CakeTestModel {
+
 /**
  * name property
  *
  * @var string 'UserForTestingLastSaveResult'
  */
 	public $name = 'UserForTestingLastSaveResult';
+
 	public $useTable = false;
-	
+
 	protected $_schema = array(
-		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'key' => 'primary', 'length' => NULL, 'collate' => NULL, 'comment' => ''),
-		'login' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
-		'name' => array('type' => 'string', 'null' => false, 'default' => NULL, 'length' => 64, 'collate' => NULL, 'comment' => ''),
+		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary', 'length' => null, 'collate' => null, 'comment' => ''),
+		'login' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
+		'name' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 64, 'collate' => null, 'comment' => ''),
 	);
 
 	public $validate = array(
-	   'id' => array(	
-           'numeric' => array(
-               'rule' => array('numeric'),
-               'precision' => 0
-            ),
-	   ),
-	   'name' => array(
-            'notempty' => array(
-                'rule' => array('notempty'),
-		        'message' => "Name is required."
-            ),
-            'minLength' => array(
-                'rule' => array('minLength',3),
-		        'message' => "Name min. length is 3"
-            ),
-            'maxLength' => array(
-                'rule' => array('maxLength',64),
-            ),
+		'id' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				'precision' => 0
+			),
+		),
+		'name' => array(
+			'notempty' => array(
+				'rule' => array('notempty'),
+				'message' => "Name is required."
+			),
+			'minLength' => array(
+				'rule' => array('minLength', 3),
+				'message' => "Name min. length is 3"
+			),
+			'maxLength' => array(
+				'rule' => array('maxLength', 64),
+			),
 		),
 		'login' => array(
-            'isUnique' => array(
-                'rule' => array('isUnique'),
-		        'message' => "Login is already taken."
-            ),
-            'alphaNumeric' => array(
-                'rule' => array('alphaNumeric'),
+			'isUnique' => array(
+				'rule' => array('isUnique'),
+				'message' => "Login is already taken."
+			),
+			'alphaNumeric' => array(
+				'rule' => array('alphaNumeric'),
 				'message' => "Login must be alphanumeric."
-            ),
+			),
 		),
 	);
 

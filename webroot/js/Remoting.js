@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -148,13 +148,28 @@ Ext.define('Bancha.Remoting', {
      *  - {Ext.data.proxy.Proxy} proxy Bancha Model Proxy
      *  - {Object} response The response from the Bancha request
      *  - {Ext.data.Operation} operation The operation that triggered request
+     *  - {Object} eOpts The options object passed to Ext.util.Observable.addListener.
      *
      * @param {Ext.data.proxy.Proxy} proxy Bancha Model Proxy
      * @param {Object} response The response from the Bancha request
      * @param {Ext.data.Operation} operation The operation that triggered request
      * @since Bancha v 2.0.0
      */
-    onRemoteException: function(proxy, response, operation){
+    onRemoteException: function(proxy, response, operation, eOpts) {
+        if((response.method === 'create' || response.method === 'update') && (response.result || {}).errors) {
+            // these are just record validation errors
+            var errors = '';
+            Ext.Object.each(response.result.errors, function(field, error) {
+                var name = (Bancha.scaffold || {}).Util ? Bancha.scaffold.Util.humanize(field) : field;
+                errors += '<br>' + name + ': ' + error;
+            });
+            // set an error message, which will be retrieved for the msg box below
+            operation.error = [
+                response.method === 'create' ? 'Creating ' : 'Updating ',
+                'a record failed: ' + errors
+            ].join('');
+        }
+
         Ext.Msg.show({
             title: 'REMOTE EXCEPTION',
             message: operation.getError(), //touch

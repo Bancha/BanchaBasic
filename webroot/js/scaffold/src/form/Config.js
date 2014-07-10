@@ -1,20 +1,20 @@
 /*
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @package       Bancha.scaffold
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 1.0.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 /**
@@ -31,8 +31,6 @@
  */
 Ext.define('Bancha.scaffold.form.Config', {
     uses: [
-        'Ext.form.field.VTypes',
-        'Ext.data.validations',
         'Ext.window.MessageBox'
     ],
 
@@ -42,12 +40,13 @@ Ext.define('Bancha.scaffold.form.Config', {
     constructor: function(config) {
         config = config || {};
         var triggeredFrom = config.triggeredFrom || 'Unknown Origin',
+            me = this,
             modelName;
 
-        // if the config is just a model or model name, transform to a config object
-        if (Ext.isString(config) || (Ext.isDefined(config) && Ext.ModelManager.isRegistered(Ext.ClassManager.getName(config)))) {
+        // if the config is just a model name or model, transform to a config object
+        if (Ext.isString(config) || Bancha.scaffold.Util.isModel(config)) {
             config = {
-                target: config // this is a valid model
+                target: config // use the model as target
             };
         }
 
@@ -68,8 +67,11 @@ Ext.define('Bancha.scaffold.form.Config', {
         modelName = config.target;
         modelName = Ext.isString(modelName) ? modelName : Ext.ClassManager.getName(modelName);
 
+        // make sure it's loaded
+        Ext.syncRequire(modelName);
+
         //<debug>
-        if (!Ext.ModelManager.isRegistered(modelName)) {
+        if (!Bancha.scaffold.Util.isModel(modelName)) {
             Ext.Error.raise({
                 plugin: 'Bancha Scaffold',
                 msg: [
@@ -83,7 +85,7 @@ Ext.define('Bancha.scaffold.form.Config', {
         //</debug>
 
         // make sure that the model property is always a model class
-        config.target = Ext.ModelManager.getModel(modelName);
+        config.target = Bancha.scaffold.Util.getModel(modelName);
 
         if(Ext.isDefined(config.exclude) && !Ext.isArray(config.exclude)) {
             //<debug>
@@ -101,7 +103,7 @@ Ext.define('Bancha.scaffold.form.Config', {
         }
 
         // apply to the object
-        Ext.apply(this, config);
+        Ext.apply(me, config);
     },
 
     statics: {
@@ -143,6 +145,10 @@ Ext.define('Bancha.scaffold.form.Config', {
     /**
      * @cfg {String[]|false}
      * If this is set to an array, only those fields are displayed.
+     * 
+     * The given order of fields is also applied, so to reorder your fields 
+     * simply defined something like _fields: ['field2','field1']_
+     * 
      * Note that the exclude setting are still applied.
      */
     fields: false,
@@ -275,7 +281,7 @@ Ext.define('Bancha.scaffold.form.Config', {
      * If an array of elements, a footer toolbar is rendered.
      *
      * 'reset' and 'save' will be replaced by scaffolded
-     * buttons, other elements are treated like default ExtJS items.
+     * buttons, other elements are treated like default Ext JS items.
      *
      * Inside your own buttons you can set the scope property to
      * 'scaffold-scope-me', this scope provides two functions:

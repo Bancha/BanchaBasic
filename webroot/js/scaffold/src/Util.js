@@ -1,20 +1,20 @@
 /*
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @package       Bancha.scaffold
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 /**
@@ -45,6 +45,7 @@ Ext.define('Bancha.scaffold.Util', {
         // note: IE6 ad 7 doesn't allow array syntax for getting the first letter
         return str.substr(0,1).toUpperCase() + str.substr(1);
     },
+
     /**
      * Capitalizes the first word, turns underscores into spaces and strips
      * trailing *'_id'*.
@@ -68,6 +69,7 @@ Ext.define('Bancha.scaffold.Util', {
         }); // convert camel case (only)
         return this.toFirstUpper(str);
     },
+
     /**
      * Transforms a namespacd class name like *'Bancha.model.AwesomeArticle'*
      * and transforms it into a name you can show to users, in this case
@@ -85,6 +87,7 @@ Ext.define('Bancha.scaffold.Util', {
         }
         return this.humanize(classname);
     },
+
     /**
      * Makes every words first letter upper case.
      *
@@ -96,6 +99,7 @@ Ext.define('Bancha.scaffold.Util', {
             return ' ' + letter.toUpperCase();
         });
     },
+
     /**
      * @private
      * This function will search for 'create', 'reset' and 'save' and will
@@ -145,6 +149,61 @@ Ext.define('Bancha.scaffold.Util', {
 
         return buttons;
     },
+
+    /**
+     * Returns true if a model class name (or class) is given.
+     * 
+     * Normalized Ext JS 4 and 5.
+     * 
+     * @param {string} classOrClassName The class name or class itself.
+     * @returns {boolen}
+     */
+    isModel: function(classOrClassName) {
+        var className = Ext.isString(classOrClassName) ? classOrClassName : Ext.ClassManager.getName(classOrClassName),
+            model = false;
+        if(!className) {
+            return false;
+        }
+        if(Ext.versions.extjs.major === 4) {
+            // Ext JS 4
+            return !!Ext.ModelManager.getModel(className);
+        }
+        // Ext JS 5
+        var handle = Ext.Error.handle;
+        Ext.Error.handle = Ext.emptyFn;
+        try {
+            model = Ext.data.schema.Schema.lookupEntity(className);
+        } catch(e) {}
+        Ext.Error.handle = handle;
+        return model;
+    },
+
+    /**
+     * Returns the model for a given class name (or class)
+     * 
+     * Normalized Ext JS 4 and 5.
+     * 
+     * @param {string} classOrClassName The class name or class itself.
+     * @returns {Ext.Class|null} The corresponsing class, or null
+     */
+    getModel: function(classOrClassName) {
+        var className = Ext.isString(classOrClassName) ? classOrClassName : Ext.ClassManager.getName(classOrClassName),
+            model;
+        if(!className) {
+            Ext.Error.raise('No model given to Bancha.scaffold.Util.getModel("' + className + '").');
+        }
+        if(Ext.versions.extjs.major === 4) {
+            // Ext JS 4
+            model = Ext.ModelManager.getModel(className);
+            if(!model) {
+                Ext.Error.raise('No such model "' + className + '" found.');
+            }
+            return model;
+        }
+        // Ext JS 5
+        return Ext.data.schema.Schema.lookupEntity(className);
+    },
+
     /**
      * @method
      * For separation of concerns, gets/creates a store.
@@ -178,6 +237,7 @@ Ext.define('Bancha.scaffold.Util', {
             return store;
         };
     }()),
+
     /**
      * This method can be overriden by your own needs.
      *
@@ -191,10 +251,10 @@ Ext.define('Bancha.scaffold.Util', {
      * @param {Ext.data.Model} model The model to look through
      * @return {String} The most accurate field name
      */
-    getDisplayFieldName: function(model) { // Connect with CakePHP
-        // if defined use the display field config
-        if(Ext.isString(model.displayField)) {
-            return model.displayField;
+    getDisplayFieldName: function(model) {
+        // if defined use the display field config (when using CakePHP)
+        if(model.getDisplayField && model.getDisplayField()) {
+            return model.getDisplayField();
         }
 
         // get the field names
@@ -220,6 +280,7 @@ Ext.define('Bancha.scaffold.Util', {
         // nothing usefull found
         return model.idProperty || fieldNames[0];
     },
+
     /**
      * This function may need to be customized, it generates the expected model associations "name" value,
      * to check if this field has a association (this is used for replacing id values with actual data).
@@ -249,19 +310,71 @@ Ext.define('Bancha.scaffold.Util', {
 
         return associationType==='belongsTo' ? name : name+'s';
     },
+
     /**
      * Returns the corresponding association for a given field, or false.
      *
+     * This will not return a reference, if defined on the field. See getBelongsToModel.
+     *
      * @param {Ext.data.Field} field The model field to look for an association (belongsTo)
      * @param {Ext.data.Model} model The fields model
-     * @return {Ext.data.association.belongsTo|False} The found association or false
+     * @return {Ext.data.association.belongsTo|Ext.data.schema.ManyToOne|False} The found association or false
      */
     getBelongsToAssociation: function(field, model) {
-        var associationName = this.fieldNameToModelAssociationName(field.name, 'belongsTo'),
-            associations = Ext.isFunction(model.getAssociations) ? model.getAssociations():
-                            (model.prototype ? model.prototype.associations : false),
-            association = (associationName && associations) ? associations.get(associationName) : false;
+        var associationName,
+            associations,
+            key;
 
-        return association;
+        // Ext JS 5 works differently then older versions
+        if(Ext.versions.extjs && Ext.versions.extjs.major === 5) {
+            associations = model.associations;
+            // this will detect Bancha associations
+            for(key in associations) {
+                if(associations.hasOwnProperty(key) && associations[key].foreignKey === field.name) {
+                    return associations[key]; // match
+                }
+            }
+            return false; // no match
+        }
+
+        // Ext JS 4 and Sencha Touch
+        associationName = this.fieldNameToModelAssociationName(field.name, 'belongsTo');
+        associations = Ext.isFunction(model.getAssociations) ? model.getAssociations():
+                            (model.prototype ? model.prototype.associations : false);
+        if(!associationName || !associations) {
+            return false;
+        }
+        return associations.get(associationName);
+    },
+    /**
+     * Returns the associated model for a given field. 
+     *
+     * Normalized the function across Ext JS 4 and 5.
+     * 
+     * @param {Ext.data.Field} field The model field to look for an association (belongsTo)
+     * @param {Ext.data.Model} model The fields model
+     * @return {Ext.data.Model|null} The associated model or null
+     */
+    getBelongsToModel: function(field, model) {
+        // this will detect new Ext JS 5 reference associations
+        if(field.reference) {
+            return field.reference.cls;
+        }
+
+        // below will detect associations array configurations
+        var association = this.getBelongsToAssociation(field, model);
+
+        // if no association found
+        if(!association) {
+            return association;
+        }
+
+        // Ext JS 5 works differently then older versions
+        if(Ext.versions.extjs && Ext.versions.extjs.major === 5) {
+            return Ext.ClassManager.get(association.model);
+        }
+
+        // Ext JS 4
+        return association.associatedModel;
     }
 });

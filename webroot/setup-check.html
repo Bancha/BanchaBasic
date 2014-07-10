@@ -2,15 +2,15 @@
 <!--
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.3
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -51,11 +51,11 @@
 <body id="top" style="text-align:center;">
 <div class="wrapper">
     <br />
-    <a href="http://banchaproject.org/"><img src="http://banchaproject.org/tl_files/Bancha/images/logo.png" alt="Bancha" /></a>
+    <a href="http://bancha.io/"><img src="http://bancha.io/tl_files/Bancha/images/logo.png" alt="Bancha" /></a>
     <br /><br />
 
 	<h3>
-       Setup check for Bancha 2.2.0:
+       Setup check for Bancha 2.3.0:
     </h3>
     <div id="log"></div>
 
@@ -65,11 +65,11 @@
 	<div class="push"></div>
 </div>
 <div class="footer">
-	<small>&copy; 2011-2013 codeQ e.U. <a href="http://banchaproject.org/impressum.html">Impressum</a>. Icons by <a href="http://www.famfamfam.com/lab/icons/silk/" target="_blank">FamFamFam</a>.</small>
+	<small>&copy; 2011-2014 codeQ e.U. <a href="http://bancha.io/impressum.html">Impressum</a>. Icons by <a href="http://www.famfamfam.com/lab/icons/silk/" target="_blank">FamFamFam</a>.</small>
 </div>
 
 
-<!-- include ExtJS -->
+<!-- include Ext JS -->
 <script type="text/javascript" src="http://cdn.sencha.io/ext-4.2.0-gpl/ext-all-debug.js"></script>
 
 
@@ -199,6 +199,7 @@ var BanchaSetup = {
 		} catch(e) {
 			exception = e;
 		}
+		exception = typeof exception==='string' ? exception : '';
 
 		BanchaSetup.writeLog(isLoaded,'Load Bancha library', [
 			'<b>Could not load the Bancha library. </b><br />',
@@ -260,7 +261,7 @@ var BanchaSetup = {
 
 		var instructions = [
 				'You most likely did not correctly installed Bancha, please check ',
-				'<a href="http://banchaproject.org/documentation-installation.html" target="_blank">Installation</a> ',
+				'<a href="http://bancha.io/documentation-installation.html" target="_blank">Installation</a> ',
 				'and make sure there are no cake errors in the <a href="../bancha-api.js" target="_blank">Remote API</a>.'
 			].join('');
 
@@ -311,10 +312,10 @@ var BanchaSetup = {
 			// namespace missing
 			BanchaSetup.writeLog(false,'<b>Wrong CakePHP Configuration for Plugin</b>', [
 				'You are missing the "bootstrap=>true" part in your configuration, please see ',
-				'<a href="http://banchaproject.org/documentation-installation.html" target="_blank">',
+				'<a href="http://bancha.io/documentation-installation.html" target="_blank">',
 				'Bancha installation instructions</a>.<br /><br />',
 				'You most likely did not correctly installed Bancha, please check ',
-				'<a href="http://banchaproject.org/documentation-installation.html" target="_blank">Installation</a> ',
+				'<a href="http://bancha.io/documentation-installation.html" target="_blank">Installation</a> ',
 				'and make sure there are no cake errors in the <a href="../bancha-api.js" target="_blank">Remote API</a>.'
 				].join(''));
 			return;
@@ -386,7 +387,7 @@ var BanchaSetup = {
 			(exposedRemoteStubs ? '' : [
 				'<div style="text-align:center;">',
 				'You haven\'t yet exposed any models or methods in CakePHP.<br />',
-				'<a href="http://banchaproject.org/documentation-usage-in-cakephp.html">',
+				'<a href="http://bancha.io/documentation-usage-in-cakephp.html">',
 				'Read here how to do this.</a></div>'].join(''))
 			].join(''));
 	}

@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Bancha specific helper functions
  *
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -49,6 +49,7 @@ BanchaSpecHelper.SampleData.remoteApiDefinition = {
         _ServerDebugLevel: 0, // set the debug level to zero to suppress Banchas debug error handling
         User: {
             idProperty: 'id',
+            displayField: 'name',
             fields: [
                 {name:'id', type:'int'},
                 {name:'name', type:'string'},
@@ -65,7 +66,7 @@ BanchaSpecHelper.SampleData.remoteApiDefinition = {
                 {type:'belongsTo', model:'Bancha.test.model.Country', name:'country'}
             ],
             validations: [
-                { type:'numberformat', field:'id', precision:0},
+                { type:'range', field:'id', precision:0},
                 { type:'presence',     field:'name'},
                 { type:'length',       field:'name', min: 2},
                 { type:'length',       field:'name', max:64},
@@ -78,6 +79,7 @@ BanchaSpecHelper.SampleData.remoteApiDefinition = {
         }, //eo User
         'TestPlugin.PluginTest': {
             idProperty: 'id',
+            displayField: null,
             fields: [
                 {name:'id', type:'int'}
             ],
@@ -93,7 +95,7 @@ var testErrorHandler = function(err) {
     expect(false).toEqual('Ext.Error.handle was triggered with following message:'+err.msg);
 };
 
-BanchaSpecHelper.init = function(/*optional*/modelDefinitionsForName,/*optional*/additionalConfigs) {
+BanchaSpecHelper.init = function(/*optional, a string or an array of model names */modelDefinitionsForName,/*optional, applied to all models*/additionalConfigs) {
     var api = BanchaSpecHelper.SampleData.remoteApiDefinition;
     Bancha.REMOTE_API = Ext.clone(api);
 
@@ -104,9 +106,14 @@ BanchaSpecHelper.init = function(/*optional*/modelDefinitionsForName,/*optional*
     };
 
     if(Ext.isString(modelDefinitionsForName)) {
-        // setup fake model
-        Bancha.REMOTE_API.metadata[modelDefinitionsForName] = Ext.apply(Ext.clone(Bancha.REMOTE_API.metadata.User),additionalConfigs);
-        Bancha.REMOTE_API.actions[modelDefinitionsForName] = Ext.clone(api.actions.User);
+        modelDefinitionsForName = [modelDefinitionsForName];
+    }
+    if(Ext.isArray(modelDefinitionsForName)) {
+        // setup fake models
+        Ext.each(modelDefinitionsForName, function(modelName) {
+            Bancha.REMOTE_API.metadata[modelName] = Ext.apply(Ext.clone(Bancha.REMOTE_API.metadata.User), additionalConfigs);
+            Bancha.REMOTE_API.actions[modelName] = Ext.clone(api.actions.User);
+        });
     } else if(Ext.isDefined(modelDefinitionsForName)){
         throw 'modelDefinitionsFor is not a string';
     }

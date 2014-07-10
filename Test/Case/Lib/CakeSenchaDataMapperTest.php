@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Lib
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -22,7 +22,7 @@ App::uses('CakeSenchaDataMapper', 'Bancha.Bancha');
 class CakeSenchaDataMapperTest extends CakeTestCase {
 
 	// see http://book.cakephp.org/2.0/en/models/retrieving-your-data.html#find-first
-	private $singleRecord = array(
+	protected $_singleRecord = array(
 		'ModelName' => array(
 			'id' => 83,
 			'field1' => 'value1',
@@ -36,8 +36,9 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			'field3' => 'value3',
 		),
 	);
+
 	// see http://book.cakephp.org/2.0/en/models/retrieving-your-data.html#find-all
-	private $singleRecordSet = array(
+	protected $_singleRecordSet = array(
 		array(
 			'ModelName' => array(
 				'id' => 83,
@@ -53,7 +54,8 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			),
 		),
 	);
-	private $multiRecordSet = array(
+
+	protected $_multiRecordSet = array(
 		array(
 			'ModelName' => array(
 				'id' => 83,
@@ -97,8 +99,9 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			),
 		),
 	);
+
 	// see http://book.cakephp.org/2.0/en/models/retrieving-your-data.html#find-threaded
-	private $threadedRecordSet = array(
+	protected $_threadedRecordSet = array(
 		array(
 			'ModelName' => array(
 				'id' => 83,
@@ -145,7 +148,8 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			'children' => array()
 		),
 	);
-	private $paginatedRecordSet = array(
+
+	protected $_paginatedRecordSet = array(
 		'count' => 100,
 		'records' => array(
 			array(
@@ -164,8 +168,9 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			),
 		),
 	);
+
 	// record with hasMany association
-	private $singleRecordWithHasMany = array(
+	protected $_singleRecordWithHasMany = array(
 		'Article' => array(
 			'id' => 1001,
 			'title' => 'Title 1',
@@ -185,8 +190,9 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 			),
 		),
 	);
+
 	// some data with recursive=3
-	private $singleRecordWithDeeplyNestedData = array(
+	protected $_singleRecordWithDeeplyNestedData = array(
 		'Article' => array(
 			'id' => 1001,
 			'title' => 'Title 1',
@@ -257,248 +263,300 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		),
 	);
 
-	/**
-	 * Test isSingleRecord function
-	 *
-	 * @dataProvider isSingleRecordDataProvider
-	 */
+/**
+ * Test isSingleRecord method
+ *
+ * @param array $data           The test data to use
+ * @param array $expectedResult The expected result
+ * @return void
+ * @dataProvider isSingleRecordDataProvider
+ */
 	public function testIsSingleRecord($data, $expectedResult) {
-
+		// test
 		$mapper = new CakeSenchaDataMapper($data, 'ModelName');
 		$result = $mapper->isSingleRecord();
 
+		// assert
 		$this->assertEquals($result, $expectedResult);
 	}
-	/**
-	 * Data Provider for testIsSingleRecord
-	 */
+
+/**
+ * Data Provider for testIsSingleRecord
+ * 
+ * @return array
+ */
 	public function isSingleRecordDataProvider() {
 		return array(
 			array(
-				$this->singleRecord,
+				$this->_singleRecord,
 				true
 			),
 			array(
-				$this->singleRecordSet,
+				$this->_singleRecordSet,
 				false
 			),
 			array(
-				$this->multiRecordSet,
+				$this->_multiRecordSet,
 				false
 			),
 			array(
-				$this->threadedRecordSet,
+				$this->_threadedRecordSet,
 				false
 			),
 			array(
-				$this->paginatedRecordSet,
+				$this->_paginatedRecordSet,
 				false
 			),
 		);
 	}
 
-
-	/**
-	 * Test isRecordSet function
-	 *
-	 * @dataProvider isRecordSetDataProvider
-	 */
+/**
+ * Test isRecordSet function
+ *
+ * @param array $data           The input data to test
+ * @param array $expectedResult The expected transformed data
+ * @return void
+ * @dataProvider isRecordSetDataProvider
+ */
 	public function testIsRecordSet($data, $expectedResult) {
-
 		$mapper = new CakeSenchaDataMapper($data, 'ModelName');
 		$result = $mapper->isRecordSet();
 
 		$this->assertEquals($result, $expectedResult);
 	}
-	/**
-	 * Data Provider for testIsRecordSet
-	 */
+
+/**
+ * Data Provider for testIsRecordSet
+ * 
+ * @return array
+ */
 	public function isRecordSetDataProvider() {
 		return array(
 			array(
-				$this->singleRecord,
+				$this->_singleRecord,
 				false
 			),
 			array(
-				$this->singleRecordSet,
+				$this->_singleRecordSet,
 				true
 			),
 			array(
-				$this->multiRecordSet,
+				$this->_multiRecordSet,
 				true
 			),
 			array(
-				$this->threadedRecordSet,
+				$this->_threadedRecordSet,
 				true
 			),
 			array(
-				$this->paginatedRecordSet,
+				$this->_paginatedRecordSet,
 				false
 			),
 		);
 	}
 
-	/**
-	 * Test isThreadedRecordSet function
-	 *
-	 * @dataProvider isThreadedRecordSetDataProvider
-	 */
+/**
+ * Test isThreadedRecordSet function
+ *
+ * @param array $data           The input data to test
+ * @param array $expectedResult The expected transformed data
+ * @return void
+ * @dataProvider isThreadedRecordSetDataProvider
+ */
 	public function testIsThreadedRecordSet($data, $expectedResult) {
-
 		$mapper = new CakeSenchaDataMapper($data, 'ModelName');
 		$result = $mapper->isThreadedRecordSet();
 
 		$this->assertEquals($result, $expectedResult);
 	}
-	/**
-	 * Data Provider for testIsThreadedRecordSet
-	 */
+
+/**
+ * Data Provider for testIsThreadedRecordSet
+ * 
+ * @return array
+ */
 	public function isThreadedRecordSetDataProvider() {
 		return array(
 			array(
-				$this->singleRecord,
+				$this->_singleRecord,
 				false
 			),
 			array(
-				$this->singleRecordSet,
+				$this->_singleRecordSet,
 				false
 			),
 			array(
-				$this->multiRecordSet,
+				$this->_multiRecordSet,
 				false
 			),
 			array(
-				$this->threadedRecordSet,
+				$this->_threadedRecordSet,
 				true
 			),
 			array(
-				$this->paginatedRecordSet,
+				$this->_paginatedRecordSet,
 				false
 			),
 		);
 	}
 
-
-	/**
-	 * Test isPaginatedSet function
-	 *
-	 * @dataProvider isPaginatedSetDataProvider
-	 */
+/**
+ * Test isPaginatedSet function
+ *
+ * @param array $data           The input data to test
+ * @param array $expectedResult The expected transformed data
+ * @return void
+ * @dataProvider isPaginatedSetDataProvider
+ */
 	public function testIsPaginatedSet($data, $expectedResult) {
-
 		$mapper = new CakeSenchaDataMapper($data, 'ModelName');
 		$result = $mapper->isPaginatedSet();
 
 		$this->assertEquals($result, $expectedResult);
 	}
-	/**
-	 * Data Provider for testIsPaginatedSet
-	 */
+
+/**
+ * Data Provider for testIsPaginatedSet
+ * 
+ * @return array
+ */
 	public function isPaginatedSetDataProvider() {
 		return array(
 			array(
-				$this->singleRecord,
+				$this->_singleRecord,
 				false
 			),
 			array(
-				$this->singleRecordSet,
+				$this->_singleRecordSet,
 				false
 			),
 			array(
-				$this->multiRecordSet,
+				$this->_multiRecordSet,
 				false
 			),
 			array(
-				$this->threadedRecordSet,
+				$this->_threadedRecordSet,
 				false
 			),
 			array(
-				$this->paginatedRecordSet,
+				$this->_paginatedRecordSet,
 				true
 			),
 		);
 	}
 
-	/**
-	 * Test walk function, simply check that each record is visited
-	 *
-	 * @dataProvider walkDataProvider
-	 */
+/**
+ * Test walk function, simply check that each record is visited
+ *
+ * @param array $data           The input data to test
+ * @param array $expectedResult The expected transformed data
+ * @return void
+ * @dataProvider walkDataProvider
+ */
 	public function testWalk($data, $expectedResult) {
-		$this->walkerResult = array();
+		$this->_walkerResult = array();
 		$mapper = new CakeSenchaDataMapper($data, 'ModelName');
 		$mapper->walk(array($this, 'walkerCallback'));
 
-		$this->assertEquals($this->walkerResult, $expectedResult);
+		$this->assertEquals($expectedResult, $this->_walkerResult);
 	}
-	private $walkerResult = false;
+
+	protected $_walkerResult = false;
+
+/**
+ * A walker method used in the test above.
+ * 
+ * @param string $modelName The model name
+ * @param array  $data      The data which should be transformed by the walker
+ * @return array             The callback result
+ */
 	public function walkerCallback($modelName, $data) {
-		if(!isset($this->walkerResult[$modelName])) {
-			$this->walkerResult[$modelName] = 1;
+		if (!isset($this->_walkerResult[$modelName])) {
+			$this->_walkerResult[$modelName] = 1;
 		} else {
-			$this->walkerResult[$modelName]++;
+			$this->_walkerResult[$modelName]++;
 		}
 		return array($modelName, $data);
 	}
-	/**
-	 * Data Provider for walk
-	 */
+
+/**
+ * Data Provider for walk
+ * 
+ * @return array
+ */
 	public function walkDataProvider() {
 		return array(
 			array(
-				$this->singleRecord,
+				$this->_singleRecord,
 				array(
-					'ModelName'=> 1,
+					'ModelName' => 1,
 					'AssocitedModelName' => 1
 				)
 			),
 			array(
-				$this->singleRecordSet,
+				$this->_singleRecordSet,
 				array(
-					'ModelName'=> 1,
+					'ModelName' => 1,
 					'AssocitedModelName' => 1
 				)
 			),
 			array(
-				$this->multiRecordSet,
+				$this->_multiRecordSet,
 				array(
-					'ModelName'=> 3,
+					'ModelName' => 3,
 					'AssocitedModelName' => 3
 				)
 			),
 			array(
-				$this->paginatedRecordSet,
+				$this->_paginatedRecordSet,
 				array(
-					'ModelName'=> 1,
+					'ModelName' => 1,
 					'AssocitedModelName' => 1
 				)
 			),
 			array(
-				$this->singleRecordWithHasMany,
+				$this->_singleRecordWithHasMany,
 				array(
-					'Article'=> 1,
+					'Article' => 1,
 					'Tag' => 2
 				)
 			),
 			array(
-				$this->singleRecordWithDeeplyNestedData,
+				$this->_singleRecordWithDeeplyNestedData,
 				array(
-					'Article'=> 3,
+					'Article' => 3,
 					'User' => 3,
 					'Tag' => 5
+				)
+			),
+			array(
+				$this->_threadedRecordSet,
+				array(
+					'ModelName' => 3,
+					'AssocitedModelName' => 3
 				)
 			),
 		);
 	}
 
-	// walker function for below
+/**
+ * A walker function which is used below
+ *
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ * @throws Exception If walker gives fale data into this callback
+ */
 	public function walkerRenamingCallback($modelName, $data) {
-		if($data == null) {
+		if ($data == null) {
 			// this is the empty tags array
 			return array(substr($modelName, 1), $data);
 		}
-		if(!isset($data['id'])) {
-			throw new Exception('Expected record data, instead got malformed input: '.print_r(aray($modelName, $data), true));
+		if (!isset($data['id'])) {
+			throw new Exception(
+				'Expected record data, instead got malformed input: ' .
+				print_r(aray($modelName, $data), true)
+			);
 		}
 		// remove id keys
 		unset($data['id']);
@@ -506,13 +564,14 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		return array(substr($modelName, 1), $data);
 	}
 
-	/**
-	 * Test that the walk function is able to transform model name keys.
-	 */
+/**
+ * Test that the walk function is able to transform model name keys.
+ * 
+ * @return void
+ */
 	public function testWalkSingleRecordRenaming() {
-
 		// execute
-		$mapper = new CakeSenchaDataMapper($this->singleRecord, 'ModelName');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecord, 'ModelName');
 		$result = $mapper->walk(array($this, 'walkerRenamingCallback'));
 
 		// test that the top level records are renamed
@@ -526,13 +585,14 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertFalse(isset($result['ssocitedModelName']['id']));
 	}
 
-	/**
-	 * Test that the walk function is able to transform model name keys.
-	 */
+/**
+ * Test that the walk function is able to transform model name keys.
+ * 
+ * @return void
+ */
 	public function testWalkRecordSetRenaming() {
-
 		// execute
-		$mapper = new CakeSenchaDataMapper($this->multiRecordSet, 'ModelName');
+		$mapper = new CakeSenchaDataMapper($this->_multiRecordSet, 'ModelName');
 		$result = $mapper->walk(array($this, 'walkerRenamingCallback'));
 
 		// test that the top level records are renamed
@@ -562,13 +622,14 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertFalse(isset($result[2]['ssocitedModelName']['id']));
 	}
 
-	/**
-	 * Test that the walk function is able to transform model name keys.
-	 */
+/**
+ * Test that the walk function is able to transform model name keys.
+ * 
+ * @return void
+ */
 	public function testWalkPaginatedRecordSetRenaming() {
-
 		// execute
-		$mapper = new CakeSenchaDataMapper($this->paginatedRecordSet, 'ModelName');
+		$mapper = new CakeSenchaDataMapper($this->_paginatedRecordSet, 'ModelName');
 		$result = $mapper->walk(array($this, 'walkerRenamingCallback'));
 
 		// test that the top level records are renamed
@@ -581,14 +642,15 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertFalse(isset($result['records'][0]['odelName']['id']));
 		$this->assertFalse(isset($result['records'][0]['ssocitedModelName']['id']));
 	}
-	
-	/**
-	 * Test that the walk function is able to transform model name keys.
-	 */
-	public function testWalkRecursiveRenaming() {
 
+/**
+ * Test that the walk function is able to transform model name keys.
+ * 
+ * @return void
+ */
+	public function testWalkRecursiveRenaming() {
 		// execute
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRenamingCallback'));
 
 		// test that the top level records are renamed
@@ -630,13 +692,14 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertFalse(isset($result['ser']['rticle'][1]['ser']['id']));
 	}
 
-	/**
-	 * Test that the walk function is able to remove entries from the array
-	 */
+/**
+ * Test that the walk function is able to remove entries from the array
+ * 
+ * @return void
+ */
 	public function testWalkRemoveEntries() {
-
 		// test removing of all tags
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRemoveEntriesCallback1'));
 
 		$this->assertTrue(isset($result['Article']));
@@ -648,7 +711,7 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertFalse(isset($result['User']['Article'][1]['Tag']));
 
 		// test removing of all users
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRemoveEntriesCallback2'));
 
 		$this->assertTrue(isset($result['Article']));
@@ -656,7 +719,7 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertTrue(isset($result['Tag']));
 
 		// test removing of article with id 1001
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRemoveEntriesCallback3'));
 
 		$this->assertFalse(isset($result['Article']));
@@ -672,7 +735,7 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 
 		// edge case, removing associated data from the current models data should also remove it
 		// each User removes this Article record
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRemoveEntriesCallback4'));
 
 		$this->assertTrue(isset($result['Article']));
@@ -681,9 +744,8 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 
 		$this->assertFalse(isset($result['User']['Article']));
 
-
 		// each Article removes this User record (nested ones only)
-		$mapper = new CakeSenchaDataMapper($this->singleRecordWithDeeplyNestedData, 'Article');
+		$mapper = new CakeSenchaDataMapper($this->_singleRecordWithDeeplyNestedData, 'Article');
 		$result = $mapper->walk(array($this, 'walkerRemoveEntriesCallback5'));
 
 		$this->assertTrue(isset($result['Article']));
@@ -694,25 +756,64 @@ class CakeSenchaDataMapperTest extends CakeTestCase {
 		$this->assertCount(2, $result['User']['Article']);
 		$this->assertFalse(isset($result['User']['Article'][0]['User']));
 		$this->assertFalse(isset($result['User']['Article'][1]['User']));
+	}
 
-	}
+/**
+ * Helper function for above
+ * 
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ */
 	public function walkerRemoveEntriesCallback1($modelName, $data) {
-		return array(($modelName=='Tag' ? false : $modelName), $data);
+		return array(($modelName == 'Tag' ? false : $modelName), $data);
 	}
+
+/**
+ * Helper function for above
+ * 
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ */
 	public function walkerRemoveEntriesCallback2($modelName, $data) {
-		return array(($modelName=='User' ? false : $modelName), $data);
+		return array(($modelName == 'User' ? false : $modelName), $data);
 	}
+
+/**
+ * Helper function for above
+ * 
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ */
 	public function walkerRemoveEntriesCallback3($modelName, $data) {
-		return array((($modelName=='Article' && $data['id']==1001) ? false : $modelName), $data);
+		return array((($modelName == 'Article' && $data['id'] == 1001) ? false : $modelName), $data);
 	}
+
+/**
+ * Helper function for above
+ * 
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ */
 	public function walkerRemoveEntriesCallback4($modelName, $data) {
-		if($modelName=='User' && isset($data['Article'])) {
+		if ($modelName == 'User' && isset($data['Article'])) {
 			unset($data['Article']);
 		}
 		return array($modelName, $data);
 	}
+
+/**
+ * Helper function for above
+ * 
+ * @param string $modelName The model name
+ * @param array $data       The input data to transform
+ * @return array             The result data
+ */
 	public function walkerRemoveEntriesCallback5($modelName, $data) {
-		if($modelName=='Article' && isset($data['User'])) {
+		if ($modelName == 'Article' && isset($data['User'])) {
 			unset($data['User']);
 		}
 		return array($modelName, $data);

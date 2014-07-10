@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Lib.Bancha.Network
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Andreas Kern <andreas.kern@gmail.com>
@@ -28,10 +28,19 @@ App::uses('BanchaRequestTransformer', 'Bancha.Bancha/Network');
  */
 class BanchaRequestCollection {
 
-/** @var string */
+/**
+ * The raw http post data, should be retireved using:
+ * file_get_contents("php://input");
+ * 
+ * @var string
+ */
 	protected $_rawPostData;
 
-/** @var array */
+/**
+ * The php $_POST array.
+ * 
+ * @var array
+ */
 	protected $_postData;
 
 /**
@@ -49,19 +58,19 @@ class BanchaRequestCollection {
  * Returns an array of CakeRequest objects. Performs various transformations on the request passed to the constructor,
  * so that the requests match the format expected by CakePHP.
  *
- * @return array Array with CakeRequest objects.
+ * @return array Array with CakeRequest objects
+ * @throws BanchaException If no data is given
  */
 	public function getRequests() {
-
-		if(isset($this->_postData) && isset($this->_postData['extTID'])) {
+		if (isset($this->_postData) && isset($this->_postData['extTID'])) {
 			// this is a form request, form request data is directly avialable
 			// in the $postData and only contains one request.
 			$data = array($this->_postData); // make an array of requests data
 
-		} else if(strlen($this->_rawPostData)) {
+		} elseif (strlen($this->_rawPostData)) {
 			// It is a normal Ext.Direct request, payload is read from php://input (saved in $rawPostData)
 			$data = json_decode($this->_rawPostData, true);
-			if($data === NULL) {
+			if ($data === null) {
 				// payload could not be converted, probably misformed json
 				throw new BanchaException(
 					'Misformed Input: The Bancha Dispatcher expected a json string, instead got ' . $this->_rawPostData);
@@ -75,13 +84,13 @@ class BanchaRequestCollection {
 		} else {
 			// no data passed
 			throw new BanchaException(
-				'Missing POST Data: The Bancha Dispatcher expected to get all requests in the Ext.Direct format as POST '.
+				'Missing POST Data: The Bancha Dispatcher expected to get all requests in the Ext.Direct format as POST ' .
 				'parameter, but there is no data in this request. You can not access this site directly!');
 		}
 
 		$requests = array();
-		if(count($data) > 0) {
-	 		for ($i=0; $i < count($data); $i++) {
+		if (count($data) > 0) {
+			for ($i = 0, $dataCount = count($data); $i < $dataCount; $i++) {
 				$transformer = new BanchaRequestTransformer($data[$i]);
 
 				// Create CakeRequest and fill it with values from the transformer.
@@ -93,7 +102,7 @@ class BanchaRequestCollection {
 				$requests[$i]->data = array();
 
 				// now set params for the request
-				$requests[$i]['controller'] 	= $transformer->getController();
+				$requests[$i]['controller']		= $transformer->getController();
 				$requests[$i]['action']			= $transformer->getAction();
 				$requests[$i]['named']			= $transformer->getPaging();
 				$requests[$i]['plugin']			= $transformer->getPlugin();
@@ -111,7 +120,7 @@ class BanchaRequestCollection {
 					$requests[$i]->data($key, $value);
 				}
 			}
- 		}
+		}
 		return $requests;
 	}
 

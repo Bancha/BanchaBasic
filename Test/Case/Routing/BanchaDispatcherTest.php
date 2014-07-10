@@ -2,12 +2,12 @@
 /**
  * BanchaDispatcherTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
  * Copyright 2011, Roland Schuetz, Kung Wong, Andreas Kern, Florian Eckerstorfer
  *
  * @package       Bancha.Test.Case.Routing
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -27,17 +27,33 @@ App::uses('BanchaRequestCollection', 'Bancha.Bancha/Network');
  */
 class TestsController extends AppController {
 
+/**
+ * test action
+ *
+ * @return array
+ */
 	public function testaction1() {
 		return array('text' => 'Hello World!');
 	}
 
+/**
+ * test action
+ *
+ * @return array
+ */
 	public function testaction2() {
 		return array('text' => 'foobar');
 	}
 
+/**
+ * test action
+ *
+ * @return boolean true
+ */
 	public function returnTrue() {
 		return true;
 	}
+
 }
 
 /**
@@ -50,40 +66,51 @@ class TestsController extends AppController {
  */
 class BanchaDispatcherTest extends CakeTestCase {
 
-	private $originalOrigin;
-	private $originalDebugLevel;
+	protected $_originalOrigin;
 
+	protected $_originalDebugLevel;
+
+/**
+ * setUp method
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : false;
-		$this->originalDebugLevel = Configure::read('debug');
+		$this->_originalOrigin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : false;
+		$this->_originalDebugLevel = Configure::read('debug');
 		$this->allowedDomains = Configure::read('Bancha.allowedDomains');
-		
+
 		// disable/drop stderr stream, to hide test's intentional errors in console and Travis
 		// first check if stream exists, because if run from the browser it doesn't
 		if (in_array('stderr', CakeLog::configured())) {
-			if(version_compare(Configure::version(), '2.2') >= 0) {
+			if (version_compare(Configure::version(), '2.2') >= 0) {
 				CakeLog::disable('stderr');
-			} else if(CakeLog::stream('stderr')) {
+			} elseif (CakeLog::stream('stderr')) {
 				// just drop stderr for CakePHP 2.1 and older
 				CakeLog::drop('stderr');
 			}
 		}
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the origin
-		if($this->originalOrigin !== false) {
-			$_SERVER['HTTP_ORIGIN'] = $this->originalOrigin;
+		if ($this->_originalOrigin !== false) {
+			$_SERVER['HTTP_ORIGIN'] = $this->_originalOrigin;
 		} else {
 			unset($_SERVER['HTTP_ORIGIN']);
 		}
 
 		// reset the debug level and allowed domains
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 		Configure::write('Bancha.allowedDomains', $this->allowedDomains);
 
 		// enable stderr stream after testing (CakePHP 2.2 and up)
@@ -100,9 +127,9 @@ class BanchaDispatcherTest extends CakeTestCase {
  *
  * This tests dispatches two actions and tests if the expected content is available in the combined response.
  *
+ * @return void
  */
 	public function testDispatchWithReturn() {
-
 		// input
 		$rawPostData = json_encode(array(
 			array(
@@ -131,7 +158,7 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$responses = json_decode($Dispatcher->dispatch($collection, $response, array('return' => true)));
 
 		// verify
-		$this->assertTrue(isset($responses[0]->result), 'Expected $responses[0]->result to pre present, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->result), 'Expected $responses[0]->result to pre present, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals('Hello World!', $responses[0]->result->data->text);
 		$this->assertEquals('foobar', $responses[1]->result->data->text);
 	}
@@ -140,9 +167,9 @@ class BanchaDispatcherTest extends CakeTestCase {
  * Tests the dispatch() method of BanchaDispatcher without the 'return'-option. Thus dispatch() sends the response
  * directly to the browser. We need to capture the output to test it.
  *
+ * @return void
  */
 	public function testDispatchWithResponseSend() {
-
 		// input
 		$rawPostData = json_encode(array(
 			array(
@@ -174,7 +201,7 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$responses = json_decode(ob_get_clean());
 
 		// verify
-		$this->assertTrue(isset($responses[0]->result), 'Expected $responses[0]->result to pre present, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->result), 'Expected $responses[0]->result to pre present, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals('Hello World!', $responses[0]->result->data->text);
 		$this->assertEquals('foobar', $responses[1]->result->data->text);
 	}
@@ -185,8 +212,7 @@ class BanchaDispatcherTest extends CakeTestCase {
  *
  * @return void
  */
-	public function testMissingController_Debug() {
-
+	public function testMissingControllerDebug() {
 		// input
 		$rawPostData = json_encode(array(
 			array(
@@ -211,12 +237,11 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$responses = json_decode($Dispatcher->dispatch($collection, $response, array('return' => true)));
 
 		// verify
-		$this->assertTrue(isset($responses[0]->type), 'Expected $responses[0]->type to pre present, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->type), 'Expected $responses[0]->type to pre present, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals('exception', $responses[0]->type);
 		$this->assertEquals('MissingControllerException', $responses[0]->exceptionType);
 		$this->assertEquals('Controller class SomeControllersController could not be found.', $responses[0]->message);
 	}
-
 
 /**
  * Bancha should not throw PHP Exceptions, because Sencha can't handle this,
@@ -224,8 +249,7 @@ class BanchaDispatcherTest extends CakeTestCase {
  *
  * @return void
  */
-	public function testMissingController_Production() {
-
+	public function testMissingControllerProduction() {
 		// input
 		$rawPostData = json_encode(array(
 			array(
@@ -250,7 +274,7 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$responses = json_decode($Dispatcher->dispatch($collection, $response, array('return' => true)));
 
 		// verify
-		$this->assertTrue(isset($responses[0]->type), 'Expected $responses[0]->type to pre present, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->type), 'Expected $responses[0]->type to pre present, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals('exception', $responses[0]->type);
 
 		// this data should be protected
@@ -258,14 +282,13 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$this->assertEquals('Unknown error.', $responses[0]->message);
 	}
 
-
-
 /**
  * Tests that Bancha only requires an HTTP_ORIGIN header when Bancha.allowedDomains is set
  * (Mainly for CORS support)
+ *
+ * @return void
  */
-	public function testRequireHttpOriginHeader_Pass() {
-
+	public function testRequireHttpOriginHeaderPass() {
 		// input
 		$rawPostData = json_encode(array(
 			'action'		=> 'Test',
@@ -294,9 +317,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 /**
  * Tests that Bancha only requires an HTTP_ORIGIN header, if Bancha.allowedDomains is set
  * (Mainly for CORS support)
+ *
+ * @return void
  */
-	public function testRequireHttpOriginHeader_Rejected_Debug() {
-
+	public function testRequireHttpOriginHeaderRejectedDebug() {
 		// input
 		$rawPostData = json_encode(array(
 			'action'		=> 'Test',
@@ -332,9 +356,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 /**
  * Tests that Bancha only requires an HTTP_ORIGIN header, if Bancha.allowedDomains is set
  * (Mainly for CORS support)
+ *
+ * @return void
  */
-	public function testRequireHttpOriginHeader_Rejected_Production() {
-
+	public function testRequireHttpOriginHeaderRejectedProduction() {
 		// input
 		$rawPostData = json_encode(array(
 			'action'		=> 'Test',
@@ -370,9 +395,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 /**
  * Tests that Bancha checks Bancha.allowedDomains
  * (CORS support)
+ *
+ * @return void
  */
-	public function testAllowedDomainsRestriction_Accepted() {
-
+	public function testAllowedDomainsRestrictionAccepted() {
 		// input
 		$rawPostData = json_encode(array(
 			'action'		=> 'Test',
@@ -407,9 +433,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 
 /**
  * Tests that Bancha checks Bancha.allowedDomains
+ *
+ * @return void
  */
-	public function testAllowedDomainsRestriction_Rejected_Debug() {
-
+	public function testAllowedDomainsRestrictionRejectedDebug() {
 		// input
 		$rawPostData = json_encode(array(
 			'action'		=> 'Test',
@@ -448,8 +475,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 
 /**
  * Tests that Bancha handles preflight requests (request type OPTIONS)
+ *
+ * @return void
  */
-	public function testOptionResponses_Rejected_Debug() {
+	public function testOptionResponsesRejectedDebug() {
 		$originalRequestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : false;
 
 		// input
@@ -491,7 +520,7 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$this->assertEqual('Bancha Error: According to the Configure::read("Bancha.allowedDomains") this request is not allowed!', $rawResponse);
 
 		// tear down
-		if($originalRequestMethod !== false ) {
+		if ($originalRequestMethod !== false ) {
 			$_SERVER['REQUEST_METHOD'] = $originalRequestMethod;
 		} else {
 			unset($_SERVER['REQUEST_METHOD']);
@@ -500,8 +529,10 @@ class BanchaDispatcherTest extends CakeTestCase {
 
 /**
  * Tests that Bancha handles preflight requests (request type OPTIONS)
+ *
+ * @return void
  */
-	public function testOptionResponses_Pass() {
+	public function testOptionResponsesPass() {
 		$originalRequestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : false;
 
 		// input
@@ -546,9 +577,8 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$this->assertEqual('http://example.org', $headers['Access-Control-Allow-Origin']);
 		$this->assertEqual('3600', $headers['Access-Control-Max-Age']);
 
-
 		// tear down
-		if($originalRequestMethod !== false) {
+		if ($originalRequestMethod !== false) {
 			$_SERVER['REQUEST_METHOD'] = $originalRequestMethod;
 		} else {
 			unset($_SERVER['REQUEST_METHOD']);
@@ -562,8 +592,10 @@ class BanchaDispatcherTest extends CakeTestCase {
  *
  * See also:
  * https://cakephp.lighthouseapp.com/projects/42648-cakephp/tickets/3960-cakeresponseheader-and
+ *
+ * @return void
  */
-	public function testOptionResponses_Pass_AllDomains() {
+	public function testOptionResponsesPassAllDomains() {
 		$originalRequestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : false;
 
 		// input
@@ -606,9 +638,8 @@ class BanchaDispatcherTest extends CakeTestCase {
 		$this->assertEqual('*', $headers['Access-Control-Allow-Origin']);
 		$this->assertEqual('3600', $headers['Access-Control-Max-Age']);
 
-
 		// tear down
-		if($originalRequestMethod !== false) {
+		if ($originalRequestMethod !== false) {
 			$_SERVER['REQUEST_METHOD'] = $originalRequestMethod;
 		} else {
 			unset($_SERVER['REQUEST_METHOD']);

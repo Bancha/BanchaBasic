@@ -1,23 +1,24 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @package       Bancha.scaffold.samples
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 // init Ext.Direct Provider
+Ext.syncRequire('Ext.direct.Manager');
 Ext.direct.Manager.addProvider(Bancha.REMOTE_API);
 
 // define the article model
@@ -44,7 +45,7 @@ Ext.define('Bancha.model.Article', {
         }
     },
     idProperty:'id',
-    fields:[
+    fields: [
         {
             name:'id',
             type:'int'
@@ -64,20 +65,23 @@ Ext.define('Bancha.model.Article', {
         },{
             name:'user_id',
             type:'int'
-        }],
-        validations:[{
+        }
+    ],
+    validations: [
+        {
             type:'presence',
             field:'title'
         },{
-            type:'numberformat',
+            type:'range',
             field:'user_id'
         }
     ],
-    associations:[
+    associations: [
         {
-          type:'belongsTo',
-           model:'Bancha.model.User',
-           name:'users'
+            type:'belongsTo',
+            model:'Bancha.model.User',
+            name:'user',
+            foreignKey: 'user_id'
         }
     ]
 });
@@ -136,10 +140,6 @@ Ext.define('Bancha.model.User', {
     ],
     validations: [
         {
-            type: 'numberformat',
-            field: 'id',
-            'precision': 0
-        }, {
             type: 'presence',
             field: 'name'
         }, {
@@ -167,16 +167,13 @@ Ext.define('Bancha.model.User', {
             field: 'email',
             matcher: /^(\w+)([\-+.][\w]+)*@(\w[\-\w]*\.){1,5}([A-Za-z]){2,6}$/ // email regex
         }, {
-            type: 'numberformat',
+            type: 'range',
             field: 'weight',
             precision: 2
         }, {
-            type: 'numberformat',
+            type: 'range',
             field: 'height',
-            precision: 0
-        }, {
-            type: 'numberformat',
-            field: 'height',
+            precision: 0,
             min: 50,
             max: 300
         }, {
@@ -189,7 +186,8 @@ Ext.define('Bancha.model.User', {
         {
             type: 'hasMany',
             model: 'Bancha.model.Article',
-            name: 'articles'
+            name: 'articles',
+            foreignKey: 'user_id'
         }
     ]
 });
@@ -224,20 +222,23 @@ Ext.define('Bancha.model.Book', {
         },{
             name:'user_id',
             type:'int'
-        }],
-        validations:[{
+        }
+    ],
+    validations: [
+        {
             type:'presence',
             field:'title'
         },{
-            type:'numberformat',
+            type:'range',
             field:'user_id'
         }
     ],
-    associations:[
+    associations: [
         {
-          type:'belongsTo',
-           model:'Bancha.model.User',
-           name:'users'
+            type:'belongsTo',
+            model:'Bancha.model.User',
+            name:'user',
+            foreignKey: 'user_id'
         }
     ]
 });

@@ -2,12 +2,12 @@
 /**
  * BanchaPaginatorComponentTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Controller.Component
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 1.1.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -28,13 +28,17 @@ App::uses('BanchaPaginatorComponent', 'Bancha.Controller/Component');
  * @since         Bancha v 1.1.0
  */
 class TestBanchaPaginatorComponentsController extends Controller {
+
 	public $uses = array('Article');
+
 	public $components = array('Session', 'Paginator' => array('className' => 'Bancha.BanchaPaginator'));
 
-	/*
-	 * Used in the testPaginationConditionApplying to
-	 * test setting the paginate via method argument
-	 */
+/**
+ * Used in the testPaginationConditionApplying to
+ * test setting the paginate via method argument
+ *
+ * @return void
+ */
 	public function getPaginationConditionsArgument() {
 		$this->Article->recursive = -1;
 
@@ -43,10 +47,13 @@ class TestBanchaPaginatorComponentsController extends Controller {
 			array('Article.title' => 'Title 1')
 		));
 	}
-	/*
-	 * Used in the testPaginationConditionApplying to
-	 * test setting the paginate via overloaded property
-	 */
+
+/**
+ * Used in the testPaginationConditionApplying to
+ * test setting the paginate via overloaded property
+ *
+ * @return void
+ */
 	public function getPaginationConditionsProperty() {
 		$this->Article->recursive = -1;
 
@@ -57,6 +64,7 @@ class TestBanchaPaginatorComponentsController extends Controller {
 
 		return $this->Paginator->paginate();
 	}
+
 }
 
 /**
@@ -67,55 +75,72 @@ class TestBanchaPaginatorComponentsController extends Controller {
  * @since         Bancha v 1.1.0
  */
 class BanchaPaginatorComponentTest extends ControllerTestCase {
-    public $fixtures = array('plugin.bancha.article');
+
+	public $fixtures = array('plugin.bancha.article');
+
+	protected $_originalDebugLevel;
 
 /**
  * This method creates a controller and a component with the given settings
+ * 
+ * @param array $settings The setting to set up the component
+ * @param array $conditions The faked conditions data
+ * @return void
  */
 	public function setUpComponent($settings, $conditions = array()) {
-        // Setup our component and fake test controller
-        // See http://book.cakephp.org/2.0/en/development/testing.html#testing-components
+		// Setup our component and fake test controller
+		// See http://book.cakephp.org/2.0/en/development/testing.html#testing-components
 
-        // setup the controller
-        $CakeRequest = new CakeRequest();
-        $CakeRequest->params['isBancha'] = true; // fake a Bancha request
-        $CakeRequest->params['named']['conditions'] = $conditions; // this exist in every Bancha request
-        $CakeResponse = new CakeResponse();
-        $this->Controller = new TestBanchaPaginatorComponentsController($CakeRequest, $CakeResponse);
+		// setup the controller
+		$CakeRequest = new CakeRequest();
+		$CakeRequest->params['isBancha'] = true; // fake a Bancha request
+		$CakeRequest->params['named']['conditions'] = $conditions; // this exist in every Bancha request
+		$CakeResponse = new CakeResponse();
+		$this->Controller = new TestBanchaPaginatorComponentsController($CakeRequest, $CakeResponse);
 		$this->Controller->Article->recursive = -1; // we only load article fixture, so don't load associated data
 
-        // setup the component collection
-        $Collection = new ComponentCollection();
-        $Collection->init($this->Controller);
+		// setup the component collection
+		$Collection = new ComponentCollection();
+		$Collection->init($this->Controller);
 
-        // setup the paginator component
+		// setup the paginator component
 		$this->BanchaPaginatorComponent = new BanchaPaginatorComponent($Collection, $settings);
-        $this->BanchaPaginatorComponent->startup($this->Controller);
+		$this->BanchaPaginatorComponent->startup($this->Controller);
 	}
 
+/**
+ * setUp method
+ * 
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
 		/*
-        App::build(array(
+		App::build(array(
 			'plugins' => $this->_paths['plugins'],
 			'views' => $this->_paths['views'],
 			'controllers' => $this->_paths['controllers'],
 			'vendors' => $this->_paths['vendors']
 		), true);
 		*/
-	
+
 		// keep debug level
-		$this->originalDebugLevel = Configure::read('debug');
+		$this->_originalDebugLevel = Configure::read('debug');
 	}
 
+/**
+ * tearDown method
+ * 
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the debug level
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 
-        // Clean up after we're done
+		// Clean up after we're done
 		unset($this->BanchaPaginatorComponent);
 		unset($this->Controller);
 	}
@@ -126,7 +151,6 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
  * @return void
  */
 	public function testSetSettings() {
-
 		// test setting allowed filters to all
 		$this->setUpComponent(array('allowedFilters' => 'all'));
 		$this->assertEquals('all', $this->BanchaPaginatorComponent->allowedFilters);
@@ -151,102 +175,118 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
 	}
 
 /**
- * testSetSettings_DebuggingExceptions_Null
+ * testSetSettingsDebuggingExceptionsNull
  *
  * @return void
  */
-	public function testSetSettings_DebuggingExceptions_Null() {
+	public function testSetSettingsDebuggingExceptionsNull() {
 		// test setting an to null
 		$this->setExpectedException('BanchaException', 'The BanchaPaginatorComponents allowedFilters configuration needs to be set.');
 		$this->setUpComponent(array('allowedFilters' => null));
 	}
 
 /**
- * testSetSettings_DebuggingExceptions_UnknownString
+ * testSetSettingsDebuggingExceptionsUnknownString
  *
  * @return void
  */
-	public function testSetSettings_DebuggingExceptions_UnknownString() {
+	public function testSetSettingsDebuggingExceptionsUnknownString() {
 		// test setting an unknown string value
 		$this->setExpectedException('BanchaException', 'The BanchaPaginatorComponents allowedFilters configuration is a unknown string value: lala');
 		$this->setUpComponent(array('allowedFilters' => 'lala'));
 	}
 
 /**
- * testSetSettings_DebuggingExceptions_UnknownField
+ * testSetSettingsDebuggingExceptionsUnknownField
  *
  * @return void
  */
-	public function testSetSettings_DebuggingExceptions_UnknownField() {
+	public function testSetSettingsDebuggingExceptionsUnknownField() {
 		// test setting an array of fields, but imaginary_field doesn't exist
 		$this->setExpectedException('BanchaException', 'The BanchaPaginatorComponents allowedFilters configuration allows filtering on Article.imaginary_field, but this is field doesn\'t exist in the models schema.');
 		$this->setUpComponent(array('allowedFilters' => array('Article.title', 'Article.imaginary_field', 'Article.published')));
 	}
 
 /**
- * testSetSettings_DebuggingExceptions_UnknownModel
+ * testSetSettingsDebuggingExceptionsUnknownModel
  *
  * @return void
  */
-	public function testSetSettings_DebuggingExceptions_UnknownModel() {
+	public function testSetSettingsDebuggingExceptionsUnknownModel() {
 		// test setting an array of fields, but ImaginaryModel doesn't exist
 		$this->setExpectedException('BanchaException', 'The TestBanchaPaginatorComponentsController is missing the model ImaginaryModel, but has a configuration for this model in BanchaPaginatorComponents allowedFilters configuration. Please make sure to define the controllers uses property or use the beforeFilter for loading.');
 		$this->setUpComponent(array('allowedFilters' => array('Article.title', 'ImaginaryModel.title', 'Article.published')));
 	}
 
 /**
- * testSanitizeConditions_DebugMode_ExistingProhibitedField_None
+ * testSanitizeConditionsDebugModeExistingProhibitedFieldNone
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_ExistingProhibitedField_None() {
+	public function testSanitizeConditionsDebugModeExistingProhibitedFieldNone() {
 		// test using prohibit filters
 		// it should not yet throw an error when setting up
-		$this->setUpComponent(array('allowedFilters' => 'none'), array('Article.title'=>'Titel 01'));
+		$this->setUpComponent(array('allowedFilters' => 'none'), array('Article.title' => 'Titel 01'));
 
 		// if should trown an error when paginating
-		$this->setExpectedException('BanchaException', 'The last ExtJS/Sencha Touch request tried to filter by Article.title, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
+		$this->setExpectedException('BanchaException', 'The last Ext JS/Sencha Touch request tried to filter by Article.title, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
 		$this->BanchaPaginatorComponent->paginate('Article');
 	}
 
 /**
- * testSanitizeConditions_DebugMode_ImaginarlyProhibitedField_None
+ * testSanitizeConditionsDebugModeImaginarlyProhibitedFieldNone
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_ImaginarlyProhibitedField_None() {
+	public function testSanitizeConditionsDebugModeImaginarlyProhibitedFieldNone() {
 		// test using prohibit filters
 		// it should not yet throw an error when setting up
-		$this->setUpComponent(array('allowedFilters' => 'none'), array('Article.imaginary_field'=>'Titel 01'));
+		$this->setUpComponent(array('allowedFilters' => 'none'), array('Article.imaginary_field' => 'Titel 01'));
 
 		// if should trown an error when paginating
-		$this->setExpectedException('BanchaException', 'The last ExtJS/Sencha Touch request tried to filter by Article.imaginary_field, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
+		$this->setExpectedException('BanchaException', 'The last Ext JS/Sencha Touch request tried to filter by Article.imaginary_field, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
 		$this->BanchaPaginatorComponent->paginate('Article');
 	}
 
 /**
- * testSanitizeConditions_DebugMode_ExistingProhibitedField_Array
+ * testSanitizeConditionsDebugModeExistingProhibitedFieldArray
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_ProhibitedField_Array() {
+	public function testSanitizeConditionsDebugModeProhibitedFieldArray() {
 		// test using prohibit filters
 		// it should not yet throw an error when setting up
-		$this->setUpComponent(array('allowedFilters' => array('Article.title','Article.body','Article.date')), array('Article.title'=>'Titel 01','Article.published'=>true));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => array('Article.title', 'Article.body', 'Article.date')
+			),
+			array(
+				'Article.title' => 'Titel 01',
+				'Article.published' => true)
+		);
 
 		// if should trown an error when paginating
-		$this->setExpectedException('BanchaException', 'The last ExtJS/Sencha Touch request tried to filter by Article.published, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
+		$this->setExpectedException('BanchaException', 'The last Ext JS/Sencha Touch request tried to filter by Article.published, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
 		$this->BanchaPaginatorComponent->paginate('Article');
 	}
 
 /**
- * testSanitizeConditions_DebugMode_AllowedField_Array
+ * testSanitizeConditionsDebugModeAllowedFieldArray
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_AllowedField_Array() {
+	public function testSanitizeConditionsDebugModeAllowedFieldArray() {
 		// test using allowed filters
-		$this->setUpComponent(array('allowedFilters' => array('Article.title','Article.body','Article.published')), array('Article.title'=>'Titel 01','Article.published'=>true));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => array('Article.title', 'Article.body', 'Article.published')
+			),
+			array(
+				'Article.title' => 'Titel 01',
+				'Article.published' => true
+			)
+		);
+
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.title']));
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.published']));
 		$this->assertEquals('Titel 01', $this->Controller->request['named']['conditions']['Article.title']);
@@ -257,28 +297,42 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
 	}
 
 /**
- * testSanitizeConditions_DebugMode_ProhibitedField_Associations
+ * testSanitizeConditionsDebugModeProhibitedFieldAssociations
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_ProhibitedField_Associations() {
+	public function testSanitizeConditionsDebugModeProhibitedFieldAssociations() {
 		// test using prohibit filters
 		// it should not yet throw an error when setting up
-		$this->setUpComponent(array('allowedFilters' => 'associations'), array('Article.title'=>'Titel 01'));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => 'associations'
+			),
+			array(
+				'Article.title' => 'Titel 01'
+			)
+		);
 
 		// if should trown an error when paginating
-		$this->setExpectedException('BanchaException', 'The last ExtJS/Sencha Touch request tried to filter by Article.title, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
+		$this->setExpectedException('BanchaException', 'The last Ext JS/Sencha Touch request tried to filter by Article.title, which is not allowed according to the TestBanchaPaginatorComponents BanchaPaginatorComponents allowedFilters configuration.');
 		$this->BanchaPaginatorComponent->paginate('Article');
 	}
 
 /**
- * testSanitizeConditions_DebugMode_AllowedField_Associations
+ * testSanitizeConditionsDebugModeAllowedFieldAssociations
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_AllowedField_Associations() {
+	public function testSanitizeConditionsDebugModeAllowedFieldAssociations() {
 		// test using allowed filters
-		$this->setUpComponent(array('allowedFilters' => 'associations'), array('Article.user_id'=>2));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => 'associations'
+			),
+			array(
+				'Article.user_id' => 2
+			)
+		);
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.user_id']));
 		$this->assertEquals(2, $this->Controller->request['named']['conditions']['Article.user_id']);
 
@@ -286,7 +340,14 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
 		$this->BanchaPaginatorComponent->paginate('Article');
 
 		// should also allow filtering via id
-		$this->setUpComponent(array('allowedFilters' => 'associations'), array('Article.id'=>1001));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => 'associations'
+			),
+			array(
+				'Article.id' => 1001
+			)
+		);
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.id']));
 		$this->assertEquals(1001, $this->Controller->request['named']['conditions']['Article.id']);
 
@@ -294,13 +355,21 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
 		$this->BanchaPaginatorComponent->paginate('Article');
 	}
 /**
- * testSanitizeConditions_DebugMode_AllowedField_All
+ * testSanitizeConditionsDebugModeAllowedFieldAll
  *
  * @return void
  */
-	public function testSanitizeConditions_DebugMode_AllowedField_All() {
+	public function testSanitizeConditionsDebugModeAllowedFieldAll() {
 		// test using allowed filters
-		$this->setUpComponent(array('allowedFilters' => 'all'), array('Article.title'=>'Titel 01','Article.published'=>true));
+		$this->setUpComponent(
+			array(
+				'allowedFilters' => 'all'
+			),
+			array(
+				'Article.title' => 'Titel 01',
+				'Article.published' => true
+			)
+		);
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.title']));
 		$this->assertTrue(isset($this->Controller->request['named']['conditions']['Article.published']));
 		$this->assertEquals('Titel 01', $this->Controller->request['named']['conditions']['Article.title']);
@@ -346,6 +415,7 @@ class BanchaPaginatorComponentTest extends ControllerTestCase {
 		$this->setExpectedException('BanchaException', 'The pageSize(150) you set is bigger then the maxLimit(100) set in CakePHP.');
 		$result = $this->BanchaPaginatorComponent->paginate('Article');
 	}
+
 /**
  * testPaginationConditionApplying
  *

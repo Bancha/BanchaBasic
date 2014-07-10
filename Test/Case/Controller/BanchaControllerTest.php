@@ -2,12 +2,12 @@
 /**
  * BanchaControllerTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Controller
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <florian@theroadtojoy.at>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -26,25 +26,36 @@ App::uses('BanchaRequestCollection', 'Bancha.Bancha/Network');
  */
 class BanchaControllerTest extends ControllerTestCase {
 
-	public $fixtures = array('plugin.bancha.article','plugin.bancha.user','plugin.bancha.tag','plugin.bancha.articles_tag');
+	public $fixtures = array(
+		'plugin.bancha.article',
+		'plugin.bancha.articles_tag',
+		'plugin.bancha.category',
+		'plugin.bancha.user',
+		'plugin.bancha.tag'
+	);
 
-	/**
-	 * Keeps a reference to the default paths, since
-	 * we need to change them in the setUp method
-	 * @var Array
-	 */
-	private $originalPaths = null;
-	private $originalOrigin;
-	private $originalDebugLevel;
+/**
+ * Keeps a reference to the default paths, since
+ * we need to change them in the setUp method
+ * @var Array
+ */
+	protected $_originalPaths = null;
 
+	protected $_originalDebugLevel;
+
+/**
+ * setUp method
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalDebugLevel = Configure::read('debug');
-		$this->originalPaths = App::paths();
+		$this->_originalDebugLevel = Configure::read('debug');
+		$this->_originalPaths = App::paths();
 
 		// make sure there's no old cache
-		Cache::clear(false,'_bancha_api_');
+		Cache::clear(false, '_bancha_api_');
 
 		// build up the test paths
 		App::build(array(
@@ -53,25 +64,35 @@ class BanchaControllerTest extends ControllerTestCase {
 		), App::RESET);
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the debug level
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 
 		// reset the paths
-		App::build($this->originalPaths, App::RESET);
+		App::build($this->_originalPaths, App::RESET);
 
 		// make sure to flush after tests, so that real app is not influenced
-		Cache::clear(false,'_bancha_api_');
+		Cache::clear(false, '_bancha_api_');
 	}
 
+/**
+ * Test the Bancha configuration
+ *
+ * @return void
+ */
 	public function testBanchaApiConfiguration() {
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 
@@ -82,13 +103,19 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check exposed methods
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
 		$this->assertTrue(isset($api->actions->Bancha));
 	}
 
-	public function testBanchaApiConfiguration_Plugin() {
+/**
+ * Test the Bancha configuration for plugins
+ *
+ * @return void
+ */
+	public function testBanchaApiConfigurationPlugin() {
 		// set up - add plugin
 		App::build(array(
 			'Plugin' => array(App::pluginPath('Bancha') . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS),
@@ -96,15 +123,15 @@ class BanchaControllerTest extends ControllerTestCase {
 
 		// load it
 		CakePlugin::load('TestPlugin');
-		
+
 		// force the cache to renew
 		App::objects('plugin', null, false);
 
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 
@@ -117,6 +144,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($api->actions->{'TestPlugin.PluginTest'})); // plugin controller
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
@@ -125,23 +153,29 @@ class BanchaControllerTest extends ControllerTestCase {
 		// tear down - unload plugin
 		CakePlugin::unload('TestPlugin');
 		App::build(array(
-			'Plugin' => $this->originalPaths['Plugin'],
+			'Plugin' => $this->_originalPaths['Plugin'],
 		), App::RESET);
 		App::objects('plugin', null, false);
 	}
 
+/**
+ * Test the Bancha configuration with one model metadata request
+ *
+ * @return void
+ */
 	public function testBanchaApiWithOneModelMetadata() {
 		$response = $this->testAction('/bancha-api/models/User.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 
 		// check that all direct methods are exposed
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
@@ -150,6 +184,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that only requested metadata is send
 		$this->assertFalse(isset($api->metadata->Article));
 		$this->assertFalse(isset($api->metadata->ArticlesTag));
+		$this->assertFalse(isset($api->metadata->Category));
 		$this->assertFalse(isset($api->metadata->Tag));
 		$this->assertTrue(isset($api->metadata->User)); // <-- this should be available
 		$this->assertFalse(isset($api->metadata->HelloWorld));
@@ -157,25 +192,31 @@ class BanchaControllerTest extends ControllerTestCase {
 
 		// test meta data structure
 		$this->assertEquals('id', $api->metadata->User->idProperty);
+		$this->assertEquals('name', $api->metadata->User->displayField);
 		$this->assertTrue(is_array($api->metadata->User->fields));
 		$this->assertTrue(is_array($api->metadata->User->validations));
 		$this->assertTrue(is_array($api->metadata->User->associations));
 		$this->assertTrue(is_array($api->metadata->User->sorters));
-
 	}
 
+/**
+ * Test the Bancha configuration with a request for multiple model metadata
+ *
+ * @return void
+ */
 	public function testBanchaApiWithMultipleMetadata() {
 		$response = $this->testAction('/bancha-api/models/[Article,User].js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 
 		// check that all direct methods are exposed
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
@@ -184,24 +225,31 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that only requested metadata is send
 		$this->assertTrue(isset($api->metadata->Article)); // <-- this should be available
 		$this->assertFalse(isset($api->metadata->ArticlesTag));
+		$this->assertFalse(isset($api->metadata->Category));
 		$this->assertFalse(isset($api->metadata->Tag));
 		$this->assertTrue(isset($api->metadata->User)); // <-- this should be available
 		$this->assertFalse(isset($api->metadata->HelloWorld));
 		$this->assertFalse(isset($api->metadata->Bancha));
 	}
 
+/**
+ * Test the Bancha configuration with a request for all model metadata
+ *
+ * @return void
+ */
 	public function testBanchaApiWithAllMetadata() {
 		$response = $this->testAction('/bancha-api/models/all.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 
 		// check that all direct methods are exposed
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
@@ -210,12 +258,18 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that only requested metadata is send
 		$this->assertTrue(isset($api->metadata->Article));
 		$this->assertTrue(isset($api->metadata->ArticlesTag));
+		$this->assertTrue(isset($api->metadata->Category));
 		$this->assertTrue(isset($api->metadata->Tag));
 		$this->assertTrue(isset($api->metadata->User));
 		$this->assertFalse(isset($api->metadata->HelloWorld)); // there is no exposed model, so no meta data
 		$this->assertFalse(isset($api->metadata->Bancha)); // there is no exposed model, so no meta data
 	}
 
+/**
+ * Test the Bancha configuration with a request for no model metadata as class
+ *
+ * @return void
+ */
 	public function testBanchaApiClassWithNoMetaData() {
 		// get response without models
 		$response = $this->testAction('/bancha-api-class.js');
@@ -228,7 +282,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		$api = json_decode($api);
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 		$this->assertEquals(true, $api->singleton);
@@ -236,12 +290,18 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that no metadata is send
 		$this->assertFalse(isset($api->metadata->Article));
 		$this->assertFalse(isset($api->metadata->ArticlesTag));
+		$this->assertFalse(isset($api->metadata->Category));
 		$this->assertFalse(isset($api->metadata->Tag));
 		$this->assertFalse(isset($api->metadata->User));
 		$this->assertFalse(isset($api->metadata->HelloWorld)); // there is no exposed model, so no meta data
 		$this->assertFalse(isset($api->metadata->Bancha)); // there is no exposed model, so no meta data
 	}
 
+/**
+ * Test the Bancha configuration with a request for multiple model metadata as class
+ *
+ * @return void
+ */
 	public function testBanchaApiClassWithAllMetaData() {
 		// get response with models
 		$response = $this->testAction('/bancha-api-class/models/all.js');
@@ -254,7 +314,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		$api = json_decode($api);
 
 		// check Ext.Direct configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 		$this->assertEquals(true, $api->singleton);
@@ -262,14 +322,19 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that only requested metadata is send
 		$this->assertTrue(isset($api->metadata->Article));
 		$this->assertTrue(isset($api->metadata->ArticlesTag));
+		$this->assertTrue(isset($api->metadata->Category));
 		$this->assertTrue(isset($api->metadata->Tag));
 		$this->assertTrue(isset($api->metadata->User));
 		$this->assertFalse(isset($api->metadata->HelloWorld)); // there is no exposed model, so no meta data
 		$this->assertFalse(isset($api->metadata->Bancha)); // there is no exposed model, so no meta data
 	}
 
+/**
+ * Test the Bancha configuration with beautified code
+ *
+ * @return void
+ */
 	public function testBanchaApiClassBeautifiedCode() {
-
 		// in debug mode expect the output to be indented
 		Configure::write('debug', 2);
 		$response = $this->testAction('/bancha-api-class.js');
@@ -283,6 +348,11 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertEquals(0, preg_match('/  /', $response), 'Remote API output should be minified code, instead find beautified code.');
 	}
 
+/**
+ * Test the Bancha configuration packaged
+ *
+ * @return void
+ */
 	public function testBanchaApiPackaged() {
 		// get response with models, packaged
 		$response = $this->testAction('/bancha-api-packaged/models/all.js');
@@ -295,7 +365,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		$api = json_decode($api);
 
 		// check basic configurations
-		$this->assertEquals('/bancha-dispatcher.php', substr($api->url,-22,22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
+		$this->assertEquals('/bancha-dispatcher.php', substr($api->url, -22, 22)); //strip the absolute path, otherwise it doesn't probably work in the terminal
 		$this->assertEquals('Bancha.RemoteStubs', $api->namespace);
 		$this->assertEquals('remoting', $api->type);
 		$this->assertEquals(true, $api->singleton);
@@ -303,6 +373,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that all direct methods are exposed
 		$this->assertTrue(isset($api->actions->Article));
 		$this->assertTrue(isset($api->actions->ArticlesTag));
+		$this->assertTrue(isset($api->actions->Category));
 		$this->assertTrue(isset($api->actions->Tag));
 		$this->assertTrue(isset($api->actions->User));
 		$this->assertTrue(isset($api->actions->HelloWorld));
@@ -311,6 +382,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// check that all metadata is exposed
 		$this->assertTrue(isset($api->metadata->Article));
 		$this->assertTrue(isset($api->metadata->ArticlesTag));
+		$this->assertTrue(isset($api->metadata->Category));
 		$this->assertTrue(isset($api->metadata->Tag));
 		$this->assertTrue(isset($api->metadata->User));
 		$this->assertFalse(isset($api->metadata->HelloWorld)); // there is no exposed model, so no meta data
@@ -337,7 +409,12 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertFalse(isset($classes->Bancha)); // there is no exposed model
 	}
 
-	public function testLoadModelMetaData_Ajax_One() {
+/**
+ * Test the Bancha configuration as ajax request
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataAjaxOne() {
 		$response = $this->testAction('/bancha-load-metadata/User.js');
 		$data = json_decode($response);
 
@@ -348,7 +425,12 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($data->User)); // <-- this should be available
 	}
 
-	public function testLoadModelMetaData_Ajax_Multiple() {
+/**
+ * Test the Bancha configuration as ajax request
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataAjaxMultiple() {
 		$response = $this->testAction('/bancha-load-metadata/[User,Article].js');
 		$data = json_decode($response);
 
@@ -359,7 +441,12 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($data->User)); // <-- this should be available
 	}
 
-	public function testLoadModelMetaData_Ajax_All() {
+/**
+ * Test the Bancha configuration as ajax request
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataAjaxAll() {
 		$response = $this->testAction('/bancha-load-metadata/all.js');
 		$data = json_decode($response);
 
@@ -370,8 +457,12 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($data->User));
 	}
 
-	public function testLoadModelMetaData_Ajax_Plugin() {
-
+/**
+ * Test the Bancha configuration as ajax request
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataAjaxPlugin() {
 		// set up - add plugin
 		App::build(array(
 			'Plugin' => array(App::pluginPath('Bancha') . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS),
@@ -379,7 +470,7 @@ class BanchaControllerTest extends ControllerTestCase {
 
 		// load it
 		CakePlugin::load('TestPlugin');
-		
+
 		// force the cache to renew
 		App::objects('plugin', null, false);
 
@@ -407,30 +498,32 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($data->Tag));
 		$this->assertTrue(isset($data->User));
 
-
 		// tear down - unload plugin
 		CakePlugin::unload('TestPlugin');
 		App::build(array(
-			'Plugin' => $this->originalPaths['Plugin'],
+			'Plugin' => $this->_originalPaths['Plugin'],
 		), App::RESET);
 		App::objects('plugin', null, false);
 	}
 
-	/**
-	 * AJAX requests to invalid models should throw an exception,
-	 * so that Ext.Ajax triggers the failure routine.
-	 *
-	 * @expectedException MissingModelException
-	 */
-	public function testLoadModelMetaData_Ajax_Error() {
+/**
+ * AJAX requests to invalid models should throw an exception,
+ * so that Ext.Ajax triggers the failure routine.
+ *
+ * @return void
+ * @expectedException MissingModelException
+ */
+	public function testLoadModelMetaDataAjaxError() {
 		$this->testAction('/bancha-load-metadata/[Imaginary].js');
 	}
 
-	/**
-	 * Bancha via Ext.Direct requests send the data in a different peroperty
-	 * and also expects the result in a different format, check this.
-	 */
-	public function testLoadModelMetaData_ExtDirect_Multiple() {
+/**
+ * Bancha via Ext.Direct requests send the data in a different peroperty
+ * and also expects the result in a different format, check this.
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataExtDirectMultiple() {
 		// we can't fake an Bancha request that easily,
 		// (We would need to set $this->params['isBancha'])
 		// therefore we make a system test here
@@ -451,7 +544,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		$responses = json_decode($dispatcher->dispatch($collection, $response, array('return' => true)));
 
 		// check the basic response and the result property
-		$this->assertTrue(isset($responses[0]->result), 'Expected an result for first request, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->result), 'Expected an result for first request, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals(true, $responses[0]->result->success);
 
 		// check that only requested metadata is send
@@ -462,13 +555,15 @@ class BanchaControllerTest extends ControllerTestCase {
 		$this->assertTrue(isset($data->User)); // <-- this should be available
 	}
 
-	/**
-	 * Bancha via Ext.Direct requests to invalid models should return
-	 * a result with success false, but should not throw a client-side
-	 * exception, because Ext.loader.Models should be able to handle
-	 * the error.
-	 */
-	public function testLoadModelMetaData_ExtDirect_Error() {
+/**
+ * Bancha via Ext.Direct requests to invalid models should return
+ * a result with success false, but should not throw a client-side
+ * exception, because Ext.loader.Models should be able to handle
+ * the error.
+ *
+ * @return void
+ */
+	public function testLoadModelMetaDataExtDirectError() {
 		// we can't fake an Bancha request that easily,
 		// (We would need to set $this->params['isBancha'])
 		// therefore we make a system test here
@@ -489,12 +584,17 @@ class BanchaControllerTest extends ControllerTestCase {
 		$responses = json_decode($dispatcher->dispatch($collection, $response, array('return' => true)));
 
 		// check the basic response, the result property and message
-		$this->assertTrue(isset($responses[0]->result), 'Expected an result for first request, instead $responses is '.print_r($responses,true));
+		$this->assertTrue(isset($responses[0]->result), 'Expected an result for first request, instead $responses is ' . print_r($responses, true));
 		$this->assertEquals(false, $responses[0]->result->success);
 		$this->assertEquals('Model Imaginary could not be found.', $responses[0]->result->message);
 	}
 
-	public function testBanchaApiServerErrorProperty_NoError() {
+/**
+ * testBanchaApiServerErrorPropertyNoError
+ *
+ * @return void
+ */
+	public function testBanchaApiServerErrorPropertyNoError() {
 		$debugLevel = Configure::read('debug');
 
 		// build up the app folders
@@ -506,7 +606,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// in production mode only expect a flag
 		Configure::write('debug', 0);
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 		// test data
 		$this->assertEquals(0, $api->metadata->_ServerDebugLevel);
 		$this->assertFalse($api->metadata->_ServerError);
@@ -514,7 +614,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// in debug mode expect a error message
 		Configure::write('debug', 2);
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 		// test data
 		$this->assertEquals(2, $api->metadata->_ServerDebugLevel);
 		$this->assertFalse($api->metadata->_ServerError);
@@ -523,15 +623,17 @@ class BanchaControllerTest extends ControllerTestCase {
 		Configure::write('debug', $debugLevel);
 	}
 
-	/**
-	 * In this test there are models, but the controllers are missing.
-	 * This should result into an error flag in the Bancha-Api.
-	 *
-	 * We will not need a separate test_app model folder here anymore
-	 * after we have refactored the static App::objects out of the
-	 * BanchaApi library class.
-	 */
-	public function testBanchaApiServerErrorProperty_MissingControllerError() {
+/**
+ * In this test there are models, but the controllers are missing.
+ * This should result into an error flag in the Bancha-Api.
+ *
+ * We will not need a separate test_app model folder here anymore
+ * after we have refactored the static App::objects out of the
+ * BanchaApi library class.
+ *
+ * @return void
+ */
+	public function testBanchaApiServerErrorPropertyMissingControllerError() {
 		$debugLevel = Configure::read('debug');
 
 		// build up the app folders to provoke an error
@@ -542,7 +644,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// in production mode only expect a flag
 		Configure::write('debug', 0);
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 		// test data
 		$this->assertEquals(0, $api->metadata->_ServerDebugLevel);
 		$this->assertTrue($api->metadata->_ServerError);
@@ -550,7 +652,7 @@ class BanchaControllerTest extends ControllerTestCase {
 		// in debug mode expect a error message
 		Configure::write('debug', 2);
 		$response = $this->testAction('/bancha-api.js');
-		$api = json_decode(substr($response, strpos($response, '=')+1));
+		$api = json_decode(substr($response, strpos($response, '=') + 1));
 		// test data
 		$this->assertEquals(2, $api->metadata->_ServerDebugLevel);
 		$this->assertTrue(is_string($api->metadata->_ServerError));
@@ -560,5 +662,3 @@ class BanchaControllerTest extends ControllerTestCase {
 		Configure::write('debug', $debugLevel);
 	}
 }
-
-

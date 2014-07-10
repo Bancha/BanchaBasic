@@ -2,12 +2,12 @@
 /**
  * BanchaCrudTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.System
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -37,22 +37,28 @@ require_once dirname(__FILE__) . '/ArticlesController.php';
  * @since         Bancha v 0.9.0
  */
 class BanchaBasicTest extends CakeTestCase {
+
 	public $fixtures = array('plugin.bancha.article');
 
+	protected $_originalDebugLevel;
 
-	private $originalDebugLevel;
-	private $originalIsPro;
+	protected $_originalIsPro;
 
+/**
+ * setUp method
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalDebugLevel = Configure::read('debug');
-		$this->originalIsPro = Configure::read('Bancha.isPro');
-		
+		$this->_originalDebugLevel = Configure::read('debug');
+		$this->_originalIsPro = Configure::read('Bancha.isPro');
+
 		// disable/drop stderr stream, to hide test's intentional errors in console and Travis
 		// first check if stream exists, because if run from the browser it doesn't
 		if (in_array('stderr', CakeLog::configured())) {
-			if(version_compare(Configure::version(), '2.2') >= 0) {
+			if (version_compare(Configure::version(), '2.2') >= 0) {
 				CakeLog::disable('stderr');
 			} else {
 				// just drop stderr for CakePHP 2.1 and older
@@ -61,14 +67,19 @@ class BanchaBasicTest extends CakeTestCase {
 		}
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the Bancha type
-		Configure::write('Bancha.isPro', $this->originalIsPro);
+		Configure::write('Bancha.isPro', $this->_originalIsPro);
 
 		// reset the debug level
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 
 		// clear the registry
 		ClassRegistry::flush();
@@ -79,8 +90,12 @@ class BanchaBasicTest extends CakeTestCase {
 		}
 	}
 
-	public function testPagination_Page1() {
-
+/**
+ * test pagination
+ *
+ * @return void
+ */
+	public function testPaginationPage1() {
 		Configure::write('Bancha.isPro', false);
 
 		// Bancha Basic can load the first page
@@ -112,8 +127,12 @@ class BanchaBasicTest extends CakeTestCase {
 		$this->assertEquals(1002, $responses[0]->result->data[1]->id);
 	}
 
-	public function testPagination_Page2() {
-
+/**
+ * test pagination
+ *
+ * @return void
+ */
+	public function testPaginationPage2() {
 		Configure::write('Bancha.isPro', false);
 
 		// Bancha Basic can NOT load the second page
@@ -145,8 +164,12 @@ class BanchaBasicTest extends CakeTestCase {
 		$this->assertContains('Bancha Basic does not support pagiantion.', $responses[0]->message);
 	}
 
-	public function testPagination_RemoteFiltering() {
-
+/**
+ * test pagination
+ *
+ * @return void
+ */
+	public function testPaginationRemoteFiltering() {
 		Configure::write('Bancha.isPro', false);
 
 		// Bancha Basic can NOT filter
@@ -182,20 +205,22 @@ class BanchaBasicTest extends CakeTestCase {
 		$this->assertContains('Bancha Basic does not support remote filtering of data.', $responses[0]->message);
 	}
 
-	/**
-	 * @expectedException         BanchaException
-	 * @expectedExceptionMessage  Bancha Basic does not support remote filtering of data,
-	 */
-	public function testPagination_AllowedFilters() {
-
+/**
+ * test pagination
+ *
+ * @return void
+ * @expectedException         BanchaException
+ * @expectedExceptionMessage  Bancha Basic does not support remote filtering of data,
+ */
+	public function testPaginationAllowedFilters() {
 		Configure::write('Bancha.isPro', false);
 
 		// Setting allowed filters should result in an an exception
 
-        // setup the paginator component
+		// setup the paginator component
 		$banchaPaginatorComponent = new BanchaPaginatorComponent(new ComponentCollection(), array());
 
-        // here is should break
+		// here is should break
 		$banchaPaginatorComponent->setAllowedFilters(array('id'));
 	}
 }

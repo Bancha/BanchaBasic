@@ -1,20 +1,20 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @package       Bancha.scaffold.samples
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 
@@ -22,8 +22,12 @@
 Ext.application({
     name: 'Bancha Scaffold examples',
     requires: [
+        'Bancha.model.User',
+        'Bancha.model.Article',
+        'Bancha.model.Book',
         'Bancha.scaffold.form.override.Panel',
-        'Bancha.scaffold.grid.override.Panel'
+        'Bancha.scaffold.grid.override.Panel',
+        'Bancha.scaffold.grid.ManagementPanel'
     ],
     launch: function() {
 
@@ -68,6 +72,9 @@ Ext.application({
                     remoteSort: true
                 },
 
+                // simply reorder the fields and exclude unnecessary ones
+                fields: ['title', 'body', 'user_id', 'date', 'published'],
+
                 // add a paging bar
                 afterBuild: function(config) {
                     // paging bar on the bottom
@@ -82,7 +89,7 @@ Ext.application({
             },
 
             // add some styling
-            height: 300,
+            height: (Ext.versions.extjs.major === 4) ? 300 : 357,
             width: 650,
             frame: true,
             renderTo: 'paginated-gridpanel'
@@ -101,7 +108,9 @@ Ext.application({
                 target: 'Bancha.model.User',
 
                 // simply add you own buttons
-                buttons: ['->',{
+                buttons: [
+                    '->',
+                    {
                         text: 'Load Sample Record',
                         iconCls: 'icon-edit',
                         handler: function() {
@@ -119,7 +128,10 @@ Ext.application({
                             panel.setTitle('Demonstration of a scaffolded Form - Change Record 1');
                         },
                         scope: 'scaffold-scope-me'
-                    },'reset','save']
+                    },
+                    'reset',
+                    'save'
+                ]
             }, // eo scaffold
 
             api: {
@@ -129,8 +141,7 @@ Ext.application({
 
             // some additional styles
             width: 650,
-            frame:true,
-            renderTo: 'formpanel',
+            frame: true,
             id: 'form',
             bodyStyle:'padding:5px 5px 0',
             fieldDefaults: {
@@ -140,7 +151,8 @@ Ext.application({
             defaultType: 'textfield',
             defaults: {
                 anchor: '100%'
-            }
+            },
+            renderTo: 'formpanel'
         }); // eo form create
 
 
@@ -154,7 +166,7 @@ Ext.application({
                 'Bancha.model.User',
                 'Bancha.model.Book',
                 'Bancha.model.Article'
-                ],
+            ],
 
             // some additional styles
             frame: true,

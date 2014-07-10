@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Tests for the Bancha.loader.Proxy class
  *
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -71,6 +71,9 @@ describe("Bancha.loader.Models", function() {
             loadFn = spyOn(Bancha, 'loadModelMetaData'),
             onLoad = spyOn(scope, 'onLoad').andCallThrough(),
             onError = spyOn(scope, 'onError').andCallThrough();
+
+        // Fake that Bancha is already initialized, but the model is not loaded yet
+        Bancha.initialized = true;
 
         // test
         loader.loadClass('Bancha.model.ModelLoaderTestModel2', onLoad, onError, scope, false);

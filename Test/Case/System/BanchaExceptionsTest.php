@@ -2,12 +2,12 @@
 /**
  * BanchExceptionsTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.System
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -30,20 +30,22 @@ require_once dirname(__FILE__) . '/ArticlesController.php';
  */
 class BanchaExceptionsTest extends CakeTestCase {
 
+	protected $_originalDebugLevel;
 
-	private $originalOrigin;
-	private $originalDebugLevel;
-
+/**
+ * tearDown setUp
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalDebugLevel = Configure::read('debug');
-		
+		$this->_originalDebugLevel = Configure::read('debug');
 
 		// disable/drop stderr stream, to hide test's intentional errors in console and Travis
 		// first check if stream exists, because if run from the browser it doesn't
 		if (in_array('stderr', CakeLog::configured())) {
-			if(version_compare(Configure::version(), '2.2') >= 0) {
+			if (version_compare(Configure::version(), '2.2') >= 0) {
 				CakeLog::disable('stderr');
 			} else {
 				// just drop stderr for CakePHP 2.1 and older
@@ -52,11 +54,16 @@ class BanchaExceptionsTest extends CakeTestCase {
 		}
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
 		// reset the debug level
-		Configure::write('debug', $this->originalDebugLevel);
+		Configure::write('debug', $this->_originalDebugLevel);
 
 		// enable stderr stream after testing (CakePHP 2.2 and up)
 		if (in_array('stderr', CakeLog::configured()) && version_compare(Configure::version(), '2.2') >= 0) {
@@ -67,9 +74,9 @@ class BanchaExceptionsTest extends CakeTestCase {
 /**
  * Tests exception handling with debug mode 2.
  *
+ * @return void
  */
 	public function testExceptionDebugMode() {
-
 		Configure::write('debug', 2);
 
 		$rawPostData = json_encode(array(
@@ -106,20 +113,28 @@ class BanchaExceptionsTest extends CakeTestCase {
  * @author Florian Eckerstorfer
  */
 	public function testExceptionProductionMode() {
-
 		Configure::write('debug', 0);
 
 		$rawPostData = json_encode(array(
-			'action'		=> 'ArticlesException',
-			'method'		=> 'throwExceptionMethod',
-			'tid'			=> 1,
-			'type'			=> 'rpc',
-			'data'			=> array(
-				'title'			=> 'Hello World',
-				'body'			=> 'foobar',
-				'published'		=> false,
-				'user_id'		=> 1,
+			array(
+				'action'		=> 'ArticlesException',
+				'method'		=> 'throwExceptionMethod', // all execption details should be hidden
+				'tid'			=> 1,
+				'type'			=> 'rpc',
+				'data'			=> array(
+					'title'			=> 'Hello World',
+					'body'			=> 'foobar',
+					'published'		=> false,
+					'user_id'		=> 1,
+				),
 			),
+			array(
+				'action'		=> 'ArticlesException',
+				'method'		=> 'throwNotFoundExceptionMethod', // this explicitly should send the type
+				'tid'			=> 1,
+				'type'			=> 'rpc',
+				'data'			=> array(),
+			)
 		));
 
 		// setup
@@ -128,21 +143,38 @@ class BanchaExceptionsTest extends CakeTestCase {
 		// mock a response to not set any headers for real
 		$response = $this->getMock('CakeResponse', array('_sendHeader'));
 
+		$defaultPassExceptions = Configure::read('Bancha.passExceptions');
+		Configure::write('Bancha.passExceptions', array('NotFoundException'));
+
 		// test
 		$responses = json_decode($dispatcher->dispatch($collection, $response, array('return' => true)));
+		$this->assertCount(2, $responses);
 
 		// show that there was an exception, but with no information!
 		$this->assertEquals('exception', $responses[0]->type);
 		$this->assertFalse(isset($responses[0]->exceptionType)); // don't send exception info
-		$this->assertEquals(__('Unknown error.',true),$responses[0]->message); // don't give usefull info to possible hackers
+		$this->assertEquals(__('Unknown error.', true), $responses[0]->message); // don't give usefull info to possible hackers
+		$this->assertFalse(isset($responses[0]->where));
+		$this->assertFalse(isset($responses[0]->trace));
+
+		// show that there was an exception, but with no information!
+		$this->assertEquals('exception', $responses[1]->type);
+		$this->assertTrue(isset($responses[1]->exceptionType)); // send exception info
+		$this->assertEquals(__('Invalid article', true), $responses[1]->message); // send exception message
+		$this->assertFalse(isset($responses[1]->where)); // don't give usefull info to possible hackers
+		$this->assertFalse(isset($responses[1]->trace));
+
+		// tear down
+		Configure::write('Bancha.passExceptions', $defaultPassExceptions);
 	}
 
 /**
  * That that different exceptions are catched correctly and
  * also the response contains the correct exceptions.
+ *
+ * @return void
  */
-	public function testExceptionDebugMode_Exceptions() {
-
+	public function testExceptionDebugModeExceptions() {
 		Configure::write('debug', 2);
 
 		// Create some requests.
@@ -197,14 +229,16 @@ class BanchaExceptionsTest extends CakeTestCase {
 		$this->assertEquals('exception', $responses[2]->type);
 		$this->assertEquals('Exception', $responses[2]->exceptionType);
 		$this->assertEquals('Method specific error message, see bottom of this test', $responses[2]->message);
-		$this->assertEquals('In file "' . __FILE__ . '" on line ' . $GLOBALS['EXCEPTION_LINE'] . '.',
-				$responses[2]->where, 'message');
+		$this->assertEquals(
+			'In file "' . __FILE__ . '" on line ' . $GLOBALS['EXCEPTION_LINE'] . '.',
+			$responses[2]->where
+		);
 	}
-
 
 /**
  * Tests the exception logging.
  *
+ * @return void
  */
 	public function testExceptionLogging() {
 		$originalLogExceptions = Configure::read('Bancha.logExceptions');
@@ -225,7 +259,7 @@ class BanchaExceptionsTest extends CakeTestCase {
 				'method'		=> 'index',
 				'tid'			=> 1,
 				'type'			=> 'rpc',
-				'data'			=> array('param1','param2'),
+				'data'			=> array('param1', 'param2'),
 			)
 		));
 
@@ -245,9 +279,12 @@ class BanchaExceptionsTest extends CakeTestCase {
 		// Expect a missing conroller exception in the logs
 		$this->assertTrue(file_exists(LOGS . 'error.log'));
 		$result = file_get_contents(LOGS . 'error.log');
-		$this->assertRegExp('/^2[0-9]{3}-[0-9]+-[0-9]+ [0-9]+:[0-9]+:[0-9]+ Error: A Bancha request to '.
-							'ThisControllerDoesNotExists::index\(\'param1\', \'param2\'\)'. // signature
-							' resulted in the following MissingControllerException:/', $result);
+		$this->assertRegExp(
+			'/^2[0-9]{3}-[0-9]+-[0-9]+ [0-9]+:[0-9]+:[0-9]+ Error: A Bancha request to ' .
+			'ThisControllerDoesNotExists::index\(\'param1\', \'param2\'\)' . // signature
+			' resulted in the following MissingControllerException:/',
+			$result
+		);
 		unlink(LOGS . 'error.log');
 
 		// this should not log
@@ -261,7 +298,6 @@ class BanchaExceptionsTest extends CakeTestCase {
 		// In Production mode the exact type is not send, only the Ext.Direct type
 		$this->assertEquals('exception', $responses[0]->type);
 		$this->assertFalse(file_exists(LOGS . 'error.log'));
-
 
 		// In Debug Mode we want to see no error log
 		Configure::write('Bancha.logExceptions', true);
@@ -278,6 +314,7 @@ class BanchaExceptionsTest extends CakeTestCase {
 		// tear down
 		Configure::write('Bancha.logExceptions', $originalLogExceptions);
 	}
+
 }
 
 /**
@@ -291,13 +328,23 @@ class ArticlesExceptionsController extends ArticlesController {
 /**
  * throwExceptionMethod method
  *
- * @param string $id
+ * @param string $id ignored
  * @return void
+ * @throws Exception Always
  */
 	public function throwExceptionMethod($id = null) {
-		// we store the current line to test it later.
-		$GLOBALS['EXCEPTION_LINE'] = __LINE__; throw new Exception('Method specific error message, see bottom of this test');
+		// we store the exception line to test it later.
+		$GLOBALS['EXCEPTION_LINE'] = __LINE__ + 1; // exception if trigger directly below
+		throw new Exception('Method specific error message, see bottom of this test');
 	}
+
+/**
+ * Throws a exception for testing purposes.
+ * 
+ * @param string $id will be ignored
+ * @return void
+ * @throws NotFoundException always
+ */
 	public function throwNotFoundExceptionMethod($id = null) {
 		throw new NotFoundException('Invalid article');
 	}

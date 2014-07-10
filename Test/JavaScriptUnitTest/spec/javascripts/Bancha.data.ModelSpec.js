@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Tests for the bancha model
  *
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -21,11 +21,12 @@ describe("Bancha.data.Model tests", function() {
     it("should apply the cake schema to all Bancha models defined in the Bancha.model namespace", function() {
         // prepare
         var ns = Bancha.modelNamespace;
+        h.init(['ModelTestCreateUser1', 'ModelTestCreateUser2', 'ModelTestCreateUser3']);
 
         // expect the apply function to be called
         var spy = spyOn(Ext.ClassManager.get('Bancha.data.Model'), 'applyCakeSchema');
 
-        // ExtJS handles this by simply beeing registered the onClassExtended
+        // Ext JS handles this by simply beeing registered the onClassExtended
         // Sencha Touch recognizes this via the namespace
         Ext.define('Bancha.model.ModelTestCreateUser1', {extend: 'Bancha.data.Model'});
         expect(spy.callCount).toEqual(1);
@@ -56,16 +57,16 @@ describe("Bancha.data.Model tests", function() {
         expect(model).toBeModelClass('Bancha.model.ModelTestSchema1');
 
         // test that a correct proxy is set
-        if(Ext.versions.extjs) {
-            // for Ext JS
+        if(Ext.versions.extjs && Ext.versions.extjs.major === 4) {
+            // for Ext JS 4
             expect(model.getProxy()).property('type').toEqual('direct');
             expect(model.getProxy()).property('reader.type').toEqual('json');
-            expect(model.getProxy()).property('writer.type').toEqual('jsondate');
+            expect(model.getProxy()).property('writer.type').toEqual('consitentjson');
         } else {
-            // For Sencha Touch
+            // For Ext JS 5 and Sencha Touch
             expect(model.getProxy().alias).toEqual(['proxy.direct']);
             expect(model.getProxy().getReader().alias).toEqual(['reader.json']);
-            expect(model.getProxy().getWriter().alias).toEqual(['writer.jsondate']);
+            expect(model.getProxy().getWriter().alias).toEqual(['writer.consitentjson']);
         }
     });
 
@@ -104,7 +105,7 @@ describe("Bancha.data.Model tests", function() {
     });
 
     it("should behave like a normal model, check normal model behavior", function() {
-        // Since the behavior of Ext JS model changes between release this one jsut makes sure
+        // Since the behavior of Ext JS model changes between release this one just makes sure
         // that a normal model would behave as expected
         // This tests our assumptions about the behavior of the current Ext JS/sencha Touch-
         // But no Bancha code
@@ -112,6 +113,7 @@ describe("Bancha.data.Model tests", function() {
         // create a model with all the configs the Bancha model should have as well
         if(Ext.versions.extjs) {
 
+            // For Ext JS 4 and 5
             Ext.define('Bancha.test.model.ModelTestSchema_PreTest', {
                 extend: 'Ext.data.Model',
                 idProperty: 'login', // <-- for testing the idProperty value
@@ -131,7 +133,7 @@ describe("Bancha.data.Model tests", function() {
                     {type:'belongsTo', model:'Bancha.test.model.Country', name:'country'}
                 ],
                 validations: [
-                    { type:"numberformat", field:"id", precision:0},
+                    { type:"range",        field:"id", precision:0},
                     { type:"presence",     field:"name"},
                     { type:"length",       field:'name', min: 2},
                     { type:"length",       field:"name", max:64},
@@ -161,7 +163,7 @@ describe("Bancha.data.Model tests", function() {
                         {type:'belongsTo', model:'Bancha.test.model.Country', name:'country'}
                     ],
                     validations: [
-                        { type:"numberformat", field:"id", precision:0},
+                        { type:"range", field:"id", precision:0},
                         { type:"presence",     field:"name"},
                         { type:"length",       field:'name', min: 2},
                         { type:"length",       field:"name", max:64},
@@ -201,8 +203,8 @@ describe("Bancha.data.Model tests", function() {
         h.initAssociatedModels();
 
         // expect the associations to be set on the model prototype
-        // and the value as a mixed collection
-        expect(rec.associations.getCount()).toEqual(2);
+        // In Ext JS 4 and Sencha Touch this is a collection, in Ext JS 5 it's an object
+        expect(rec.associations.getCount ? rec.associations.getCount() : Ext.Object.getSize(rec.associations)).toEqual(2);
 
         // expect that associations create a store of related data
         var posts = rec.posts();
@@ -210,7 +212,7 @@ describe("Bancha.data.Model tests", function() {
         expect((posts.model || posts.getModel()).getName()).toEqual('Bancha.test.model.Post');
     });
 
-    it("should set the fields and idProperty on Bancha models (integrative test)", function() {
+    it("should set the fields, idProperty and displayField on Bancha models (integrative test)", function() {
         // setup model metadata
         h.init('ModelTestSchema2');
 
@@ -237,6 +239,9 @@ describe("Bancha.data.Model tests", function() {
 
         // test that the id property is set correctly
         expect(rec.idProperty || rec.getIdProperty()).toEqual('login');
+
+        // test that the display field is set correctly
+        expect(rec.getDisplayField()).toEqual('name');
     });
 
 
@@ -273,6 +278,9 @@ describe("Bancha.data.Model tests", function() {
     });
 
     it("should set the associations on Bancha models (integrative test)", function() {
+        if(Ext.versions.extjs && Ext.versions.extjs.major === 5) {
+            return; // not yet supported
+        }
         // setup model metadata
         h.init('ModelTestSchema4');
 
@@ -293,7 +301,8 @@ describe("Bancha.data.Model tests", function() {
         h.initAssociatedModels();
 
         // expect that Bancha set the associations
-        expect(rec.associations.getCount()).toEqual(2);
+        // In Ext JS 4 and Sencha Touch this is a collection, in Ext JS 5 it's an object
+        expect(rec.associations.getCount ? rec.associations.getCount() : Ext.Object.getSize(rec.associations)).toEqual(2);
 
         // expect that associations create a store of related data
         var posts = rec.posts();
@@ -354,5 +363,29 @@ describe("Bancha.data.Model tests", function() {
 
         // verify the expectations were met
         mockProxy.verify();
+    });
+
+    it("should allow to set the forceConsistency flag on a per-model bases", function() {
+        // setup model metadata
+        h.init(['ModelTestConsistencyConfig1','ModelTestConsistencyConfig2']);
+
+        // and create the models
+        Ext.define('Bancha.model.ModelTestConsistencyConfig1', {
+            extend: 'Bancha.data.Model'
+        });
+        Ext.define('Bancha.model.ModelTestConsistencyConfig2', {
+            extend: 'Bancha.data.Model'
+        });
+
+        // check that function exists
+        expect(Bancha.model.ModelTestConsistencyConfig1.setForceConsistency).toBeAFunction();
+
+        // set the config
+        Bancha.model.ModelTestConsistencyConfig1.setForceConsistency(false);
+        Bancha.model.ModelTestConsistencyConfig2.setForceConsistency(true);
+
+        // check
+        expect(Bancha.model.ModelTestConsistencyConfig1.getForceConsistency()).toBeFalsy();
+        expect(Bancha.model.ModelTestConsistencyConfig2.getForceConsistency()).toBeTruthy();
     });
 });

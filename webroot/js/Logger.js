@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -76,9 +76,11 @@ Ext.define('Bancha.Logger', {
             }
 
             // ok, now log it to the server
-            var serverType = type==='missing_translation' ? type : 'js_error';
-            message = (type==='warn' ? 'WARNING: ' : '') + message;
-            Bancha.getStub('Bancha').logError(message, serverType);
+            if(Bancha.hasStub('Bancha')) {
+                var serverType = type==='missing_translation' ? type : 'js_error';
+                message = (type==='warn' ? 'WARNING: ' : '') + message;
+                Bancha.getStub('Bancha').logError(message, serverType);
+            }
             return;
         }
 

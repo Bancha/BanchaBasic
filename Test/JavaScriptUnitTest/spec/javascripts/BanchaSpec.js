@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Tests for the main Bancha class
  *
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -102,6 +102,8 @@ describe("Bancha Singleton - basic retrieval functions on the stubs and model me
         // The RemoteApi to was already set during the startup to correctly load dependencies
         // so unset it first
         Bancha.REMOTE_API = undefined;
+        // Fake that Bancha is already initialized
+        Bancha.initialized = true;
         // now test
         if(Bancha.debugVersion) {
             expect(function() {

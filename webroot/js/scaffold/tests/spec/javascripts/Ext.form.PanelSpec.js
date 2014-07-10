@@ -1,7 +1,7 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -9,14 +9,14 @@
  * Ext.form.Panel extension tests
  *
  * @package       Bancha.scaffold.tests
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 describe("Ext.form.Panel unit tests",function() {
@@ -79,11 +79,11 @@ describe("Ext.form.Panel unit tests",function() {
         });
     });
 
-    it("should add an format property to all datefield configs, which are created for an form panel", function() {
+    it("should add all format properties to all datefield configs, which are created for an form panel", function() {
         // prepare
         model('MyTest.model.FormConfigDateFieldTest');
 
-        // check that all default vallues are added, as well as name and label
+        // check that all default values are added, as well as name and label
         var config = Ext.create('Bancha.scaffold.form.Config', {
             target: 'MyTest.model.FormConfigDateFieldTest'
         });
@@ -97,6 +97,32 @@ describe("Ext.form.Panel unit tests",function() {
             fieldLabel: 'Some name',
             name: 'someName',
             format: 'Y-m-d H:i:s'
+        });
+    });
+
+    it("should allow the user to change the datefield format and only enforce read and write formats", function() {
+        // prepare
+        model('MyTest.model.FormConfigDateFieldTest2');
+
+        // check that all default values are added, as well as name and label
+        var config = Ext.create('Bancha.scaffold.form.Config', {
+            target: 'MyTest.model.FormConfigDateFieldTest',
+            datefieldDefaults: {
+                format: 'd.m.Y'
+            }
+        });
+        var field = Ext.create('Ext.data.Field', {
+            type: 'date',
+            name: 'someName',
+            dateFormat: 'Y-m-d H:i:s'
+        });
+        expect(panel.buildFieldConfig(field, config)).toEqual({
+            xtype : 'datefield',
+            fieldLabel: 'Some name',
+            name: 'someName',
+            format: 'd.m.Y',
+            altFormats: 'm/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j|Y-m-d H:i:s',
+            submitFormat: 'Y-m-d H:i:s'
         });
     });
 
@@ -130,11 +156,15 @@ describe("Ext.form.Panel unit tests",function() {
                 xtype: 'hiddenfield',
                 allowDecimals : false,
                 name: 'id',
-                fieldLabel: 'Id'
+                fieldLabel: 'Id',
+                decimalPrecision: 0
             },{
                 xtype: 'textfield',
                 name: 'name',
-                fieldLabel: 'Name'
+                fieldLabel: 'Name',
+                allowBlank: false,
+                minLength: 2,
+                maxLength: 64
             },{
                 xtype: 'textfield',
                 name: 'login',
@@ -180,6 +210,31 @@ describe("Ext.form.Panel unit tests",function() {
         })).toEqualConfig(getSimpleFormExpectation('MyTest.model.FormConfigTest'));
     });
 
+
+    it("should use only fields from the fields config (component test", function() {
+        // prepare
+        model('MyTest.model.FormConfigFieldsTest');
+
+        var config = Ext.create('Bancha.scaffold.form.Config', {
+            target: 'MyTest.model.FormConfigFieldsTest',
+            fields: ['name', 'email', 'login']
+        });
+
+        // test
+        var result = panel.buildConfig(config, {
+            id: 'MyTest.model.FormConfigTest-id'
+        });
+
+        // check that not-defined fields got excluded
+        expect(result).property('items.length').toEqual(3);
+
+        // check that the order of the fields array was used
+        expect(result).property('items.0.name').toEqual('name');
+        expect(result).property('items.1.name').toEqual('email');
+        expect(result).property('items.2.name').toEqual('login');
+    });
+
+
     it("should consider the exclude property to exclude specific fields from the scaffolding", function() {
         // prepare
         model('MyTest.model.FormConfigExcludeTest');
@@ -193,6 +248,7 @@ describe("Ext.form.Panel unit tests",function() {
             id: 'MyTest.model.FormConfigTest-id'
         })).property('items.length').toEqual(6);
     });
+
 
     it("should clone all configs, so that you can create multiple forms from the same defaults "+
         "(component test)", function() {
@@ -219,18 +275,18 @@ describe("Ext.form.Panel unit tests",function() {
         // prepare
         model('MyTest.model.FormConfigWithValidationTest',{
             validations: [
-                {type:'presence', name:'id'},
-                {type:'presence', name:'name'},
-                {type:'length', name:'name', min:3, max:64},
-                {type:'presence', name:'login'},
-                {type:'length', name:'login', min:3, max:64},
-                {type:'format', name:'login', matcher: /^[a-zA-Z0-9_]+$/},
-                {type:'presence', name:'email'},
-                {type:'format', name:'email', matcher:
+                {type:'presence', field:'id'},
+                {type:'presence', field:'name'},
+                {type:'length', field:'name', min:3, max:64},
+                {type:'presence', field:'login'},
+                {type:'length', field:'login', min:3, max:64},
+                {type:'format', field:'login', matcher: /^[a-zA-Z0-9_]+$/},
+                {type:'presence', field:'email'},
+                {type:'format', field:'email', matcher:
                                  /^(\w+)([\-+.][\w]+)*@(\w[\-\w]*\.){1,5}([A-Za-z]){2,6}$/},
-                {type:'numberformat', name:'weight', precision:2},
-                {type:'numberformat', name:'height', min:50, max:300},
-                {type:'file', name:'avatar', extension:['gif', 'jpeg', 'png', 'jpg']}
+                {type:'range', field:'weight', precision:2},
+                {type:'range', field:'height', min:50, max:300},
+                {type:'file', field:'avatar', extension:['gif', 'jpeg', 'png', 'jpg']}
             ]
         });
 
@@ -418,7 +474,7 @@ describe("Ext.form.Panel scaffold extension tests",function() {
         model('MyTest.model.FormPanelExtensionModelClassTestModel');
 
         var panel = Ext.create("Ext.form.Panel", {
-            scaffold: Ext.ModelManager.getModel('MyTest.model.FormPanelExtensionModelClassTestModel')
+            scaffold: Ext.ClassManager.get('MyTest.model.FormPanelExtensionModelClassTestModel')
         });
 
         // since this function is using #buildConfig,
@@ -450,4 +506,21 @@ describe("Ext.form.Panel scaffold extension tests",function() {
         expect(panel.getDockedItems()[0].items.items[2].handler).toEqual(onSave);
     });
 
+    it("should be cleanly subclassable", function() {
+        // prepare
+        model('MyTest.model.FormPanelSubclassingTestModel');
+
+        Ext.define('Bancha.scaffold.test.FormPanel', {
+            extend: 'Ext.form.Panel',
+            scaffold: 'MyTest.model.FormPanelSubclassingTestModel'
+        });
+
+        // try subclassing
+        var panel = Ext.create('Bancha.scaffold.test.FormPanel', {});
+
+        // since this function is using #buildConfig,
+        // just test that it is applied and no error was raised
+
+        expect(panel).property('items.items.length').toEqual(8);
+    });
 });

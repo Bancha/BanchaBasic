@@ -2,12 +2,12 @@
 /**
  * Bancha Test Model
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.test_app.Model_BanchaApi_MissingController
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 1.2.3
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -31,5 +31,13 @@ class ModelWithoutControllerBanchaApiTest extends AppModel {
  * @var array
  */
 	public $actsAs = array('Bancha.BanchaRemotable');
+
+/**
+ * We never save or ready anything, so don't setup a 
+ * database table via fixture.
+ * 
+ * @var boolean
+ */
+	public $useTable = false;
 
 }

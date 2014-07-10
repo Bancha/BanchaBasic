@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Network
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -28,17 +28,18 @@ class BanchaRequestCollectionTest extends CakeTestCase {
  * Transforms one Ext JS request into a CakePHP request. Transforms the indexes from Ext JS syntax (action + method)
  * into CakePHP syntax (controller + action).
  *
+ * @return void
  */
-	function testGetRequests() {
-		$client_id = uniqid();
+	public function testGetRequests() {
+		$clientId = uniqid();
 
 		// We need to provide a request which looks like an actual Ext JS request in JSON syntax.
 		// It is notated as a PHP array and transformed into JSON because it is easier to read that way.
 		$rawPostData = json_encode(array(
 			'action'	=> 'Test',
 			'method'	=> 'create',
-			'data'		=> array(array('data'=>array(
-				'__bcid'		=> $client_id,
+			'data'		=> array(array('data' => array(
+				'__bcid'		=> $clientId,
 			))),
 			'type'		=> 'rpc',
 			'tid'		=> 1,
@@ -68,15 +69,16 @@ class BanchaRequestCollectionTest extends CakeTestCase {
 		$this->assertEquals(1, $requests[0]['tid']);
 
 		// consistency id is recognized?
-		$this->assertEquals($client_id, $requests[0]['client_id']);
+		$this->assertEquals($clientId, $requests[0]['client_id']);
 	}
 
 /**
  * Transforms multiple Ext JS requests into CakePHP requests. Also transforms the indexes of action/controller and
  * method/action.
  *
+ * @return void
  */
-	function testGetRequestsMultiple() {
+	public function testGetRequestsMultiple() {
 		// Again, the Ext JS request is notated in PHP syntax and transformed into JSON because it is easier to read
 		// this way.
 		$rawPostData = json_encode(array(
@@ -119,8 +121,9 @@ class BanchaRequestCollectionTest extends CakeTestCase {
  * Transforms one Ext JS form request into a CakePHP request. Transforms the indexes from Ext JS form syntax (action +
  * method) into CakePHP syntax (controller + action).
  *
+ * @return void
  */
-	function testGetRequestsForm() {
+	public function testGetRequestsForm() {
 		$postData = array(
 			'extAction'	=> 'Test',
 			'extMethod'	=> 'submit',
@@ -160,6 +163,8 @@ class BanchaRequestCollectionTest extends CakeTestCase {
 
 /**
  * Tests if the extUpload parameter is correctly passed through the CakeRequest.
+ *
+ * @return void
  */
 	public function testGetExtUploadForm() {
 		$postData = array(
@@ -181,15 +186,16 @@ class BanchaRequestCollectionTest extends CakeTestCase {
 /**
  * Transforms one Ext JS request for Bancha into a CakePHP request.
  * Need to set the plugin value.
+ *
+ * @return void
  */
-	function testGetRequestsBancha() {
-
+	public function testGetRequestsBancha() {
 		// We need to provide a request which looks like an actual Ext JS request in JSON syntax.
 		// It is notated as a PHP array and transformed into JSON because it is easier to read that way.
 		$rawPostData = json_encode(array(
 			'action'	=> 'Bancha',
 			'method'	=> 'loadMetaData',
-			'data'		=> array(array('data'=>array(
+			'data'		=> array(array('data' => array(
 				'User',
 				'Article'
 			))),

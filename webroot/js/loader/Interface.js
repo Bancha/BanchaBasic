@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -43,6 +43,7 @@ Ext.define('Bancha.loader.Interface', {
          */
         parentLoader: null
     },
+
     /**
      * This function will be called to find the correct loader
      * for handling the class loading. Return true to handle
@@ -55,6 +56,7 @@ Ext.define('Bancha.loader.Interface', {
     handles: function(className) {
         return false;
     },
+
     /**
      * This function will be called every time a class needs to be loaded
      * and the #handles(classname) returned true.
@@ -68,5 +70,7 @@ Ext.define('Bancha.loader.Interface', {
 	 * @param  {Object}   scope       The scope to use for onLoad and onError
 	 * @param  {Boolean}  syncEnabled True is the file should be loaded synchronous.
      */
-    loadClass: function(className, onLoad, onError, scope, syncEnabled) {}
+    loadClass: function(className, onLoad, onError, scope, syncEnabled) {
+    }
+
 });

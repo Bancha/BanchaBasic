@@ -5,12 +5,12 @@
  *
  * This file should load/create any application wide configuration settings.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Config
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.3
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -21,7 +21,7 @@ Inflector::rules('plural', array('/^Bancha$/i' => 'Bancha'));
 /**
  * This is the current Bancha release version.
  */
-Configure::write('Bancha.version', '2.2.0');
+Configure::write('Bancha.version', '2.3.0');
 
 /**
  * By default the Ext JS or Sencha Touch web app is on the same domain
@@ -33,7 +33,7 @@ Configure::write('Bancha.version', '2.2.0');
  *
  * Please also set the Bancha.allowedDomains config from below.
  *
- * See also http://banchaproject.org/documentation-cross-domain-requests.html
+ * See also http://bancha.io/documentation-pro-cross-domain-requests.html
  */
 //Configure::write('Bancha.Api.domain', 'http://example.org');
 
@@ -48,10 +48,35 @@ Configure::write('Bancha.version', '2.2.0');
  *           'http://trusted-domain-two.org',
  *       ));
  *
- * See also http://banchaproject.org/documentation-cross-domain-requests.html
+ * See also http://bancha.io/documentation-pro-cross-domain-requests.html
  */
-if(Configure::read('Bancha.allowedDomains') === null) { // conditionals are needed because of loading order
+if (Configure::read('Bancha.allowedDomains') === null) { // conditionals are needed because of loading order
 	Configure::write('Bancha.allowedDomains', false);
+}
+
+/**
+ * Most exceptions thrown from a controller action are not expected to happen
+ * and to give away to much information to possible hackers only that an 
+ * exception happend is send to the client, but not further information.
+ *
+ * Some exceptions are thought to be handled in the user interface, e.g. a
+ * login exception, these can be defined here. For these exceptions Bancha
+ * will send the type and the message to the user.
+ *
+ * An example for handling authentification and wuthorization errors in the
+ * frontend:
+ * 
+ *       Configure::write('Bancha.passExceptions', array(
+ *           'MyFrontendException',
+ *           'BanchaAuthLoginException',
+ *           'BanchaAuthAccessRightsException'
+ *       ));
+ */
+if (Configure::read('Bancha.passExceptions') === null) { // conditionals are needed because of loading order
+	Configure::write('Bancha.passExceptions', array(
+		'BanchaAuthLoginException',
+		'BanchaAuthAccessRightsException'
+	));
 }
 
 /**
@@ -60,7 +85,7 @@ if(Configure::read('Bancha.allowedDomains') === null) { // conditionals are need
  *
  * Normally there is no reason to do this.
  */
-if(Configure::read('Bancha.Api.stubsNamespace') === null) { // conditionals are needed because of loading order
+if (Configure::read('Bancha.Api.stubsNamespace') === null) { // conditionals are needed because of loading order
 	Configure::write('Bancha.Api.stubsNamespace', 'Bancha.RemoteStubs');
 }
 
@@ -74,7 +99,7 @@ if(Configure::read('Bancha.Api.stubsNamespace') === null) { // conditionals are 
  * If you feel like changing this, please write us an email before to
  * support@banchaproject.org, you're probably doing something wrong.
  */
-if(Configure::read('Bancha.Api.remoteApiNamespace') === null) {
+if (Configure::read('Bancha.Api.remoteApiNamespace') === null) {
 	Configure::write('Bancha.Api.remoteApiNamespace', 'Bancha.REMOTE_API');
 }
 /**
@@ -84,14 +109,14 @@ if(Configure::read('Bancha.Api.remoteApiNamespace') === null) {
  * If you feel like changing this, please write us an email before to
  * support@banchaproject.org, you're probably doing something wrong.
  *
- * If you want to send multiple multiple records from ExtJS to CakePHP in one
+ * If you want to send multiple multiple records from Ext JS to CakePHP in one
  * action (this is not about request batching!), you have to enable this.
  * Normally this is not needed and the according error is only triggered
- * because the ExtJS store proxy is configured with batchActions:true.
+ * because the Ext JS store proxy is configured with batchActions:true.
  *
  * Please never batch records on the proxy level (Ext.Direct is batching them).
  */
-if(Configure::read('Bancha.allowMultiRecordRequests') === null) {
+if (Configure::read('Bancha.allowMultiRecordRequests') === null) {
 	Configure::write('Bancha.allowMultiRecordRequests', false);
 }
 
@@ -101,7 +126,7 @@ if(Configure::read('Bancha.allowMultiRecordRequests') === null) {
  *
  * To change disable it, please override it in your core.php
  */
-if(Configure::read('Bancha.logExceptions') === null) {
+if (Configure::read('Bancha.logExceptions') === null) {
 	Configure::write('Bancha.logExceptions', true);
 }
 
@@ -112,7 +137,7 @@ if(Configure::read('Bancha.logExceptions') === null) {
  *
  * To disable it, please override it in your core.php
  */
-if(Configure::read('Bancha.ServerLogger.logIssues') === null) {
+if (Configure::read('Bancha.ServerLogger.logIssues') === null) {
 	Configure::write('Bancha.ServerLogger.logIssues', true);
 }
 
@@ -125,7 +150,7 @@ if(Configure::read('Bancha.ServerLogger.logIssues') === null) {
  *
  * To disable it, please override it in your core.php
  */
-if(Configure::read('Bancha.ServerLogger.logEnvironment') === null) {
+if (Configure::read('Bancha.ServerLogger.logEnvironment') === null) {
 	Configure::write('Bancha.ServerLogger.logEnvironment', true);
 }
 
@@ -136,7 +161,7 @@ if(Configure::read('Bancha.ServerLogger.logEnvironment') === null) {
  */
 
 
-if(Configure::read('Bancha.isPro') === null) {
+if (Configure::read('Bancha.isPro') === null) {
 	Configure::write('Bancha.isPro', false);
 }
 

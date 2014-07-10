@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Controller.Component
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 1.1.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -17,7 +17,7 @@ App::uses('BanchaException', 'Bancha.Bancha/Exception');
  * BanchaPaginatorComponent
  *
  * This class extends the default Paginator component to also support
- * remote filtering from inside any ExtJS/Sencha Touch store with
+ * remote filtering from inside any Ext JS/Sencha Touch store with
  * remoteFiltering:true and a Bancha model.
  *
  * @package       Bancha.Controller.Component
@@ -96,22 +96,22 @@ class BanchaPaginatorComponent extends PaginatorComponent {
  * So every time the request is made by Bancha we will disable the RequestHandler,
  * if available.
  *
- * @param  Controller $Controller Controller with components to initialize
+ * @param Controller $Controller Controller with components to initialize
  * @return void
  */
 	public function initialize(Controller $Controller) {
-		if(!isset($Controller->request->params['isBancha']) || !$Controller->request->params['isBancha']) {
+		if (!isset($Controller->request->params['isBancha']) || !$Controller->request->params['isBancha']) {
 			// this is not a Bancha request, so nothing for us to do here
 			return;
 		}
 
 		// If there is a RequestHandler, deactivate all callbacks
-		if(isset($Controller->RequestHandler)) {
+		if (isset($Controller->RequestHandler)) {
 			$Controller->Components->disable('RequestHandler');
 		}
 
 		// If there is a AuthComponent, missing rights should trigger a redirect, not a rendering
-		if(isset($Controller->Auth)) {
+		if (isset($Controller->Auth)) {
 			$Controller->Auth->ajaxLogin = null;
 		}
 	}
@@ -123,7 +123,7 @@ class BanchaPaginatorComponent extends PaginatorComponent {
  * @return void
  */
 	public function startup(Controller $Controller) {
-		if(!isset($Controller->request->params['isBancha']) || !$Controller->request->params['isBancha']) {
+		if (!isset($Controller->request->params['isBancha']) || !$Controller->request->params['isBancha']) {
 			// this is not a Bancha request, so nothing for us to do here
 			return;
 		}
@@ -144,28 +144,26 @@ class BanchaPaginatorComponent extends PaginatorComponent {
  * @param array $whitelist List of allowed fields for ordering.  This allows you to prevent ordering
  *   on non-indexed, or undesirable columns.
  * @return array Model query results
- * @throws MissingModelException
- * @throws BanchaException
+ * @throws BanchaException If there is a configuration error in Bancha
  */
-    public function paginate($object = null, $scope = array(), $whitelist = array()) {
-
-    	// bancha-specific access-restriction logic
-		if(isset($this->_Controller->request->params['isBancha']) && $this->_Controller->request->params['isBancha']) {
+	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+		// bancha-specific access-restriction logic
+		if (isset($this->_Controller->request->params['isBancha']) && $this->_Controller->request->params['isBancha']) {
 
 			// apply the Bancha default settings
 			$this->settings = array_merge($this->settings, $this->banchaSettings);
 
 			// debug warning
-			if(Configure::read('debug')==2 && isset($this->_Controller->request->params['named']['limit']) &&
-				$this->settings['maxLimit']<$this->_Controller->request->params['named']['limit']) {
+			if (Configure::read('debug') == 2 && isset($this->_Controller->request->params['named']['limit']) &&
+				$this->settings['maxLimit'] < $this->_Controller->request->params['named']['limit']) {
 				throw new BanchaException(sprintf(
-					'The pageSize(%u) you set is bigger then the maxLimit(%u) set in CakePHP.', 
+					'The pageSize(%u) you set is bigger then the maxLimit(%u) set in CakePHP.',
 					$this->_Controller->request->params['named']['limit'],
 					$this->settings['maxLimit']));
 			}
 
 			
-			/**
+			/*
 			 * Bancha Basic does not allow pagination.
 			 *
 			 * Yes, if you want to hack this software, it is pretty simply. We want
@@ -179,22 +177,21 @@ class BanchaPaginatorComponent extends PaginatorComponent {
 			// We place this here instead of in the RequestTransformer to make
 			// sure the other requests ares till handled correctly and that we
 			// return an Ext.Direct response.
-			if(Configure::read('Bancha.isPro')==false && $this->_Controller->request->named['page']>1) {
+			if (Configure::read('Bancha.isPro') == false && $this->_Controller->request->named['page'] > 1) {
 				throw new BanchaException(
-					'Bancha Basic does not support pagiantion. <br>'.
+					'Bancha Basic does not support pagiantion. <br>' .
 					'If you need advanced features, please consider buying Bancha Pro.'
 				);
 			}
-			if(Configure::read('Bancha.isPro')==false && !empty($this->_Controller->request->named['conditions'])) {
+			if (Configure::read('Bancha.isPro') == false && !empty($this->_Controller->request->named['conditions'])) {
 				throw new BanchaException(
-					'Bancha Basic does not support remote filtering of data. <br>'.
+					'Bancha Basic does not support remote filtering of data. <br>' .
 					'If you need advanced features, please consider buying Bancha Pro.'
 				);
 			}
 			
 			
 		}
-
 
 		return parent::paginate($object, $scope, $whitelist);
 	}
@@ -207,10 +204,9 @@ class BanchaPaginatorComponent extends PaginatorComponent {
  * @return void
  */
 	protected function _setSettings(array $settings) {
-
 		// override defaults by component configs
 		foreach ($settings as $key => $value) {
-			if(property_exists($this, $key)) {
+			if (property_exists($this, $key)) {
 				$this->{$key} = $value; // override
 			}
 		}
@@ -221,14 +217,14 @@ class BanchaPaginatorComponent extends PaginatorComponent {
 /**
  * Change the allowedFilter at run-time. This function will santizise and may throw an
  * error if the configuration is malformed.
+ * 
  * @param string/string[] $allowedFilters the new value for the allowedFilters property
  * @throws BanchaException
  * @return void
  */
 	public function setAllowedFilters($allowedFilters) {
-
 		
-		/**
+		/*
 		 * Bancha Basic does not allow filtering.
 		 *
 		 * Yes, if you want to hack this software, it is pretty simply. We want
@@ -239,10 +235,10 @@ class BanchaPaginatorComponent extends PaginatorComponent {
 		 * small company and if we don't earn money to life from this project
 		 * we are not able to further develop Bancha.
 		 */
-		if(Configure::read('Bancha.isPro')==false) {
+		if (Configure::read('Bancha.isPro') == false) {
 			throw new BanchaException(
-				'Bancha Basic does not support remote filtering of data, therefore using '.
-				'$this->Paginator->setAllowedFilters is not possible. <br>'.
+				'Bancha Basic does not support remote filtering of data, therefore using ' .
+				'$this->Paginator->setAllowedFilters is not possible. <br>' .
 				'If you need advanced features, please consider buying Bancha Pro.'
 			);
 		}
@@ -251,5 +247,6 @@ class BanchaPaginatorComponent extends PaginatorComponent {
 		
 	}
 
+	
 
 }

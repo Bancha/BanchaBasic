@@ -2,12 +2,12 @@
 /**
  * PluginTestsController file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.System
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 2.1.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  */
@@ -23,8 +23,12 @@ class PluginTestsController extends TestPluginAppController {
 
 	public $uses = array();
 
-	/**
-	 * @banchaRemotable
-	 */
-	public function exposedTestMethod() {}
+/**
+ * This is an exposed method, which does nothing.
+ * 
+ * @banchaRemotable
+ * @return void nothing
+ */
+	public function exposedTestMethod() {
+	}
 }

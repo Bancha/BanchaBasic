@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
- * ExtJS and Sencha Touch specific extension of the jasmin Mock helper
+ * Ext JS and Sencha Touch specific extension of the jasmin Mock helper
  *
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -23,7 +23,7 @@ Ext.define('Ext.data.proxy.override.Direct', {
 
 /**
  * Mock.Proxy extends the Mock object and provides
- * an easier interface for ExtJS testing
+ * an easier interface for Ext JS testing
  */
 Mock.Proxy = (function() {
 
@@ -39,6 +39,20 @@ Mock.Proxy = (function() {
     proxyPrototype.setModel = function(model) {
         // make sure that Sencha Touch does not use Caching
         if(model.setUseCache) { model.setUseCache(false); }
+    };
+
+    // getModel is called by Ext JS 5 when creating
+    // an Proxy from model/store, totally unimportant for us
+    proxyPrototype.getModel = function() {
+        return false; // returning false prevents cloning, see src/data/Model.js:2008
+    };
+
+    // getModel is called by Ext JS 5 when creating
+    // an Proxy from model/store, totally unimportant for us
+    proxyPrototype.createOperation = function(action, options) {
+        var operation = Ext.createByAlias("data.operation."+action, options);
+        operation.setProxy(this);
+        return operation; // see src/data/Model.js:1801
     };
 
     // provide a destroy function if the mock is replace by another proxy

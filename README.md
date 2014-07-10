@@ -1,23 +1,27 @@
-[![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://banchaproject.com)
+[![Bancha logo](http://docs.banchaproject.org/wiki/images/github-logo.png)](http://bancha.io)
 
-Bancha Basic composer plugin.
+[![Build Status](https://travis-ci.org/Bancha/Bancha.png)](https://travis-ci.org/Bancha/Bancha)
+
+This is the development version of Bancha Pro. You can download stable production builds from [our website](http://bancha.io/download.html).
+==================================================================
+
+This version of Bancha is commercially licensed and requires you to purchase a license. You can download a free version [here](http://bancha.io/download.html).
+
 ------------------------------
 
-This is the composer build of Bancha Basic, only releases are pushed to this repository. For more information 
-see http://bancha.io
-
-
-Bancha Features
----------------
+Features
+--------
 
 *   handles all communication between server and client
+*   shares all schema and validation rules in CakePHP with Ext JS/Sencha Touch
 *   enables asynchronous and batched request to the server
+*   automatically implements CRUD for all remotable cake models
 *   is well-tested with PHPUnit and Jasmine
 
 Compatibility
 -------------
 *   CakePHP 2.1.0 till latest
-*   ExtJS 4.0.7 till latest
+*   Ext JS 4.0.7 till latest
 *   Sencha Touch 2.0.1.1 till latest
 
 Installation
@@ -25,12 +29,12 @@ Installation
 
 To install with Composer please use the following instructions:
 
-1. Add the package name with desired version (e.g. `"bancha/bancha-basic": "2.1.0"`) to the `require` key in your `composer.json`:
+1. Add the package name with desired version (e.g. `"bancha/bancha-basic": "2.3.0"`) to the `require` key in your `composer.json`:
 
 ```
 {
     "require": {
-        "bancha/bancha-basic": "2.1.0"
+        "bancha/bancha-basic": "2.3.0"
     }
 }
 

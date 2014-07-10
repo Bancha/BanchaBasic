@@ -1,7 +1,7 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -9,14 +9,14 @@
  * Ext.grid.Panel extension tests
  *
  * @package       Bancha.scaffold.tests
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 describe("Ext.grid.Panel unit tests",function() {
@@ -152,6 +152,28 @@ describe("Ext.grid.Panel unit tests",function() {
     });
 
 
+    it("should use only fields from the fields config (component test)", function() {
+        // prepare
+        model('MyTest.model.GridColumnsConfigFieldsTest');
+
+        var config = Ext.create('Bancha.scaffold.grid.Config', {
+            target: 'MyTest.model.GridColumnsConfigFieldsTest',
+            fields: ['name', 'email', 'login']
+        });
+
+        // test
+        var result = panel.buildColumns(config, {});
+
+        // check that not-defined fields got excluded
+        expect(result.length).toEqual(3);
+
+        // check that the order of the fields array was used
+        expect(result).property('0.dataIndex').toEqual('name');
+        expect(result).property('1.dataIndex').toEqual('email');
+        expect(result).property('2.dataIndex').toEqual('login');
+    });
+
+
     it("should exclude fields defined in the exclude property (component test)", function() {
         // prepare
         model('MyTest.model.GridColumnsConfigExcludeTest');
@@ -188,7 +210,7 @@ describe("Ext.grid.Panel unit tests",function() {
             xtype    : 'gridcolumn',
             text     : 'Name',
             dataIndex: 'name',
-            editor   : {xtype:'textfield', name:'name'}
+            editor   : {xtype:'textfield', name:'name', allowBlank: false, minLength: 2, maxLength: 64 }
         }, {
             flex     : 1,
             xtype    : 'gridcolumn',
@@ -574,7 +596,7 @@ describe("Ext.grid.Panel scaffold extension tests",function() {
         model('MyTest.model.GridPanelExtensionModelClassTestModel');
 
 		var panel = Ext.create("Ext.grid.Panel", {
-			scaffold: Ext.ModelManager.getModel('MyTest.model.GridPanelExtensionModelClassTestModel')
+			scaffold: Ext.ClassManager.get('MyTest.model.GridPanelExtensionModelClassTestModel')
 		});
 
         // since this function is using #buildConfig,
@@ -622,6 +644,24 @@ describe("Ext.grid.Panel scaffold extension tests",function() {
 		// check that the onSave function is used
 		expect(toolbar).property('items.items.3.handler').toEqual(onSave);
 	});
+
+    it("should be cleanly subclassable", function() {
+        // prepare
+        model('MyTest.model.GridPanelSubclassingTestModel');
+
+        Ext.define('Bancha.scaffold.test.GridPanel', {
+            extend: 'Ext.grid.Panel',
+            scaffold: 'MyTest.model.GridPanelSubclassingTestModel'
+        });
+
+        // try subclassing
+        var panel = Ext.create('Bancha.scaffold.test.GridPanel', {});
+
+        // since this function is using #buildConfig,
+        // just test that it is applied and no error was raised
+
+        expect(panel).property('columns.length').toEqual(9); // 8 columns + destroy column
+    });
 
     it('Tear down function, since jasmin doesn\' provide a after suite function', function() {
         Bancha.scaffold.grid.Config.setDefault('storeDefaults', {

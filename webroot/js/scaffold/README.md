@@ -1,10 +1,11 @@
-[![Bancha Scaffold - Easy Prototyping](http://files.banchaproject.org/tl_files/Bancha/images/bancha-scaffold/bancha-scaffold-claim.jpg)](http://scaffold.banchaproject.org/)
+[![Bancha Scaffold - Easy Prototyping](http://files.banchaproject.org/tl_files/Bancha/images/bancha-scaffold/bancha-scaffold-claim.jpg)](http://scaffold.bancha.io/)
 
+[![Build Status](https://travis-ci.org/Bancha/Bancha.png)](https://travis-ci.org/Bancha/BanchaScaffold)
 
 Bancha Scaffolding Library
 =========================
 
-Bancha Scaffold helps you easily prototype Ext.grid.Panel's and Ext.form.Panel's in Ext JS 4, helping you creating beautiful prototypes in minutes. And it it completly free and open source!
+Bancha Scaffold helps you easily prototype Ext.grid.Panel's and Ext.form.Panel's in Ext JS 4 and 5, helping you creating beautiful prototypes in minutes. And it it completly free and open source!
 
 Features
 --------
@@ -23,7 +24,7 @@ Usage
 To use the latest stable code just include build/bancha-scaffold-debug.js into your project.
 
 
-For more information got to [http://scaffold.banchaproject.org](http://scaffold.banchaproject.org)
+For more information got to [http://scaffold.bancha.io](http://scaffold.bancha.io)
 
 License
 -------
@@ -49,9 +50,9 @@ Building a release
 1. Configure builder/config/production.properties
 1. Open the terminal/console and type
 
-    cd builder
-    phing
-    (run "phing gitDeploy" for the github stable release folder)
+      cd builder
+      phing
+      (run "phing gitDeploy" for the github stable release folder)
 
 
 ------------------------------

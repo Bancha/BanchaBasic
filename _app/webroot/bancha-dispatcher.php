@@ -2,7 +2,7 @@
 /**
  * Bancha Front Controller
  *
- * The Front Controller for handling every request from Sencha Touch or ExtJS.
+ * The Front Controller for handling every request from Sencha Touch or Ext JS.
  * This file should be copied to the app/webroot directory.
  *
  * This is modified version of CakePHPs webroot/index.php
@@ -13,14 +13,14 @@
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Bancha : Ext JS and Cake PHP (http://banchaproject.org)
  * Copyright 2005-2013 Cake Software Foundation, Inc. (http://cakefoundation.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @copyright	  Copyright 2011-2013 codeQ e.U.
+ * @copyright	  Copyright 2011-2014 codeQ e.U.
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @link          http://cakephp.org CakePHP(tm) Project
- * @link 		  http://banchaproject.org Bancha Project
+ * @link 		  http://bancha.io Bancha
  * @package       Bancha
  * @subpackage    Bancha._app.webroot
  * @since         Bancha v 0.9.1
@@ -31,7 +31,7 @@
 /**
  * this is for the check setup page
  */
-if(isset($_GET['setup-check']) && $_GET['setup-check']) {
+if (isset($_GET['setup-check']) && $_GET['setup-check']) {
 	// send as javascript
 	header('Content-type: text/javascript');
 	exit('{"BanchaDispatcherIsSetup":true}');
@@ -119,12 +119,12 @@ if (!empty($failed)) {
 // first we need to find where Bancha is located
 if (file_exists(ROOT . DS . 'plugins' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
 	// Bancha is in the general plugins folder
-	if(!include(ROOT . DS . 'plugins' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
+	if (!include (ROOT . DS . 'plugins' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
 		$failed = true;
 	}
-} else if (file_exists(ROOT . DS . APP_DIR . DS . 'Plugin' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
+} elseif (file_exists(ROOT . DS . APP_DIR . DS . 'Plugin' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
 	// Bancha is in the app Plugin folder
-	if(!include(ROOT . DS . APP_DIR . DS . 'Plugin' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
+	if (!include (ROOT . DS . APP_DIR . DS . 'Plugin' . DS . 'Bancha' . DS . 'Config' . DS . 'bancha-dispatcher-bootstrap.php')) {
 		$failed = true;
 	}
 }
@@ -140,10 +140,10 @@ App::uses('BanchaRequestCollection', 'Bancha.Bancha/Network');
 App::import('Controller', 'Bancha.Bancha');
 
 $Dispatcher = new BanchaDispatcher();
-$raw_post_data = file_get_contents("php://input");
+$rawPostData = file_get_contents("php://input");
 $Dispatcher->dispatch(
 	new BanchaRequestCollection(
-		$raw_post_data  ? $raw_post_data : '',
+		$rawPostData ? $rawPostData : '',
 		isset($_POST) ? $_POST : array()
 	),
 	new CakeResponse()

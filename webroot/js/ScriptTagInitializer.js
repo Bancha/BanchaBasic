@@ -1,14 +1,14 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.2.0
+ * @version       Bancha v 2.3.0
  *
  * For more information go to http://banchaproject.org
  */
@@ -126,7 +126,7 @@
     Ext.Loader.setPath('Bancha', path);
 
     if(paths['Bancha.Initializer']) {
-        // Sencha Architect 3
+        // Sencha Cmd 4 (probably with Sencha Architect 3)
         // Since there is a specific path for each file, Sencha Architect 3 with Sencha Cmd 4 is used
         // The new Sencha Cmd 4 writes all class pathes in bootstrap.js. Since Bancha files are outside
         // the webroot, the filesystem and dynamic web-loaded pathes don't match.

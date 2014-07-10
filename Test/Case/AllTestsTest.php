@@ -2,12 +2,12 @@
 /**
  * AllTestsTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Andreas Kern <andreas.kern@gmail.com>
@@ -18,7 +18,7 @@
 /**
  * AllTestsTest class
  *
- * This test group will run all test in the Bancha/Test/Cases directory except for those in the System directory.
+ * This test group will run all fast tests in the Bancha/Test/Cases directory.
  *
  * @package       Bancha.Test.Case
  * @since         Bancha v 0.9.0
@@ -39,8 +39,8 @@ class AllTestsTest extends PHPUnit_Framework_TestSuite {
 		$suite->addTestFile($path . DS . 'AllNetworkTest.php');
 		$suite->addTestFile($path . DS . 'AllRoutingTest.php');
 		$suite->addTestFile($path . DS . 'AllSystemTest.php');
-		$suite->addTestFile($path . DS . 'Lib' . DS .'BanchaApiTest.php');
-		$suite->addTestFile($path . DS . 'Lib' . DS .'CakeSenchaDataMapperTest.php');
+		$suite->addTestFile($path . DS . 'Lib' . DS . 'BanchaApiTest.php');
+		$suite->addTestFile($path . DS . 'Lib' . DS . 'CakeSenchaDataMapperTest.php');
 		$suite->addTestFile($path . DS . 'Console' . DS . 'Command' . DS . 'Task' . DS . 'BanchaExtractTaskTest.php');
 
 		//$suite->addTestDirectory($path);

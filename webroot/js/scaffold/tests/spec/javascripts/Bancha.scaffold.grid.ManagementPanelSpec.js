@@ -1,7 +1,7 @@
 /*!
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -9,14 +9,14 @@
  * Bancha.scaffold.grid.ManagementPanel tests
  *
  * @package       Bancha.scaffold.tests
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.5.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 describe("Bancha.scaffold.grid.ManagementPanel tests",function() {
@@ -60,7 +60,7 @@ describe("Bancha.scaffold.grid.ManagementPanel tests",function() {
         var panel = Ext.create('Bancha.scaffold.grid.ManagementPanel', {
             models: [
                 'Bancha.model.ManagementPanelUser',
-                Ext.ModelManager.getModel('Bancha.model.ManagementPanelArticle')
+                Ext.ClassManager.get('Bancha.model.ManagementPanelArticle')
             ],
             scaffoldDefaults: { storeDefaults: {}} // prevent autoloading
         });
@@ -73,8 +73,8 @@ describe("Bancha.scaffold.grid.ManagementPanel tests",function() {
         expect(panel).property('items.items.1.title').toEqual('Management Panel Article');
 
         // expect scaffold model to be set on both tabs
-        expect(panel).property('items.items.0.store.model').toEqual(Ext.ModelManager.getModel('Bancha.model.ManagementPanelUser'));
-        expect(panel).property('items.items.1.store.model').toEqual(Ext.ModelManager.getModel('Bancha.model.ManagementPanelArticle'));
+        expect(panel).property('items.items.0.store.model').toEqual(Ext.ClassManager.get('Bancha.model.ManagementPanelUser'));
+        expect(panel).property('items.items.1.store.model').toEqual(Ext.ClassManager.get('Bancha.model.ManagementPanelArticle'));
     });
 
     it('should recognize the models capabilities and provides only those functionality', function() {

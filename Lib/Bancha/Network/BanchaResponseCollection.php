@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Lib.Bancha.Network
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.1.0
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
  * @author        Roland Schuetz <mail@rolandschuetz.at>
@@ -40,6 +40,9 @@ class BanchaResponseCollection {
 
 /**
  * Constructor
+ *
+ * @param CakeResponse $CakeResponse The response to use for the result
+ * @return void
  */
 	public function __construct(CakeResponse $CakeResponse) {
 		$this->_CakeResponse = $CakeResponse;
@@ -57,7 +60,7 @@ class BanchaResponseCollection {
 		$response = array(
 			'type'		=> 'rpc',
 			'tid'		=> $tid,
-			'action'	=> ($CakeRequest->plugin ? $CakeRequest->plugin.'.' : '').Inflector::singularize($CakeRequest->controller), // controllers are called action in Ext JS
+			'action'	=> ($CakeRequest->plugin ? $CakeRequest->plugin . '.' : '') . Inflector::singularize($CakeRequest->controller), // controllers are called action in Ext JS
 			'method'	=> BanchaResponseTransformer::getMethod($CakeRequest), // actions are called methods in Ext JS
 			'result'	=> BanchaResponseTransformer::transform($CakeResponse->body(), $CakeRequest),
 		);
@@ -79,13 +82,21 @@ class BanchaResponseCollection {
  */
 	public function addException($tid, Exception $e, CakeRequest $CakeRequest) {
 		// only add exception information in debug mode
-		if(Configure::read('debug') > 0) {
+		if (Configure::read('debug') > 0) {
 			$response = array(
 				'type'			=> 'exception',
 				'exceptionType'	=> get_class($e), // added by Bancha
 				'message'		=> $e->getMessage(),
 				'where'			=> 'In file "' . $e->getFile() . '" on line ' . $e->getLine() . '.',
 				'trace'			=> $e->getTraceAsString(),
+			);
+		} elseif (in_array(get_class($e), Configure::read('Bancha.passExceptions'))) {
+			// this exception is explicitly marked to be forwarded to the user
+			// since we are not in debug mode, don't send the trace or exception source
+			$response = array(
+				'type'			=> 'exception',
+				'exceptionType'	=> get_class($e), // added by Bancha
+				'message'		=> $e->getMessage()
 			);
 		} else {
 			$response = array(
@@ -101,7 +112,7 @@ class BanchaResponseCollection {
 		$this->_responses[] = $response;
 
 		return $this;
-	 }
+	}
 
 /**
  * Combines all CakeResponses into a single response and transforms it into JSON. If it is an formHandler request
@@ -111,37 +122,40 @@ class BanchaResponseCollection {
  */
 	public function getResponses() {
 		// Log usage once
-		if(!Configure::read('Bancha.isPro') && !Configure::read('Bancha.ServerLogger.logEnvironment')
-			&& Cache::read('bancha-logged')==false) {
+		if (!Configure::read('Bancha.isPro') && !Configure::read('Bancha.ServerLogger.logEnvironment')
+			&& Cache::read('bancha-logged') == false) {
 			Cache::write('bancha-logged', true);
 			try {
 				$url = 'http://logs.banchaproject.org/';
-				$data = array('url'=>$_SERVER['HTTP_HOST'],'path'=>$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
+				$data = array(
+					'url' => $_SERVER['HTTP_HOST'],
+					'path' => $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']
+				);
 				if (function_exists('curl_init')) {
 					$options = array(
-						CURLOPT_URL            => $url,
-						CURLOPT_HEADER         => true,
+						CURLOPT_URL => $url,
+						CURLOPT_HEADER => true,
 						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_POST           => true,
-						CURLOPT_POSTFIELDS     => $data
+						CURLOPT_POST => true,
+						CURLOPT_POSTFIELDS => $data
 					);
 					$ch = curl_init();
 					curl_setopt_array($ch, $options);
 					ob_start();
 					$response = @curl_exec($ch);
 					ob_end_clean();
-				} else if (function_exists('stream_context_create')) {
-					$stream_options = array(
+				} elseif (function_exists('stream_context_create')) {
+					$streamOptions = array(
 						'http' => array(
-							'method'  => 'POST',
+							'method' => 'POST',
 							'content' => $data
 					));
-					$ctx = stream_context_create($stream_options);
+					$ctx = stream_context_create($streamOptions);
 					$response = file_get_contents($url, 0, $ctx);
 				}
-			} catch(Exception $e) {}
+			} catch(Exception $e) {
+			}
 		}
-
 
 		// request was successfull
 		$this->_CakeResponse->statusCode(200);
@@ -149,8 +163,8 @@ class BanchaResponseCollection {
 
 		// If this is an formHandler request with an upload, so wrap the response in a valid HTML body.
 		if (isset($this->_responses['0']['extUpload']) && $this->_responses['0']['extUpload']) {
+			// see http://www.sencha.com/forum/showthread.php?156689
 			$this->_CakeResponse->type('text/html');
-			// TODO Is this right implemented? http://www.sencha.com/forum/showthread.php?156689
 			$this->_CakeResponse->body('<html><body><textarea>' . json_encode($this->_responses) . '</textarea></body></html>');
 		} else {
 			$this->_CakeResponse->type('json');

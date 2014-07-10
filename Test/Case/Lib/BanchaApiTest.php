@@ -1,11 +1,11 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with ExtJS and Sencha Touch (http://banchaproject.org)
- * Copyright 2011-2013 codeQ e.U.
+ * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Lib
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://banchaproject.org Bancha Project
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://bancha.io Bancha
  * @since         Bancha v 0.9.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @author        Florian Eckerstorfer <f.eckerstorfer@gmail.com>
@@ -22,19 +22,31 @@ App::uses('BanchaApi', 'Bancha.Bancha');
  * @since         Bancha v 0.9.0
  */
 class BanchaApiTest extends CakeTestCase {
-    public $fixtures = array('plugin.bancha.article','plugin.bancha.articles_tag','plugin.bancha.user','plugin.bancha.tag');
 
-	/**
-	 * Keeps a reference to the default paths, since
-	 * we need to change them in the setUp method
-	 * @var Array
-	 */
-	private $originalPaths = null;
+	public $fixtures = array(
+		'plugin.bancha.article',
+		'plugin.bancha.articles_tag',
+		'plugin.bancha.user',
+		'plugin.bancha.tag'
+	);
 
+/**
+ * Keeps a reference to the default paths, since
+ * we need to change them in the setUp method.
+ * 
+ * @var array
+ */
+	protected $_originalPaths = null;
+
+/**
+ * setUp method
+ *
+ * @return void
+ */
 	public function setUp() {
 		parent::setUp();
 
-		$this->originalPaths = App::paths();
+		$this->_originalPaths = App::paths();
 
 		// build up the test paths
 		App::build(array(
@@ -45,11 +57,16 @@ class BanchaApiTest extends CakeTestCase {
 
 		// load plugin from test_app
 		CakePlugin::load('TestPlugin');
-		
+
 		// force the cache to renew
 		App::objects('plugin', null, false);
 	}
 
+/**
+ * tearDown method
+ *
+ * @return void
+ */
 	public function tearDown() {
 		parent::tearDown();
 
@@ -57,12 +74,17 @@ class BanchaApiTest extends CakeTestCase {
 		CakePlugin::unload('TestPlugin');
 
 		// reset the paths
-		App::build($this->originalPaths, App::RESET);
+		App::build($this->_originalPaths, App::RESET);
 
 		// force the cache to renew
 		App::objects('plugin', null, false);
 	}
 
+/**
+ * Test retrieving the remotable models
+ *
+ * @return void
+ */
 	public function testGetRemotableModels() {
 		// prepare
 		$api = new BanchaApi();
@@ -78,8 +100,13 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertContains('TestPlugin.Comment', $remotableModels);
 	}
 
+/**
+ * Test filtering the remotable models
+ *
+ * @return void
+ */
 	public function testFilterRemotableModels() {
-
+		// prepare
 		$api = new BanchaApi();
 		$remotableModels = array('Article', 'User', 'Tag', 'ArticlesTag', 'TestPlugin.Comment');
 
@@ -120,7 +147,7 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertContains('Article', $filteredModels);
 
 		// expose two models (alternative usage)
-		$filteredModels = $api->filterRemotableModels($remotableModels, array('User','Article'));
+		$filteredModels = $api->filterRemotableModels($remotableModels, array('User', 'Article'));
 		$this->assertCount(2, $filteredModels);
 		$this->assertContains('User', $filteredModels);
 		$this->assertContains('Article', $filteredModels);
@@ -136,19 +163,23 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertContains('TestPlugin.Comment', $filteredModels);
 	}
 
-	/**
-	 * filterRemotableModels() should throw a MissingModelException when a model is provided in $filter which is not
-	 * remotable model.
-	 * @expectedException MissingModelException
-	 */
-	public function testFilterRemotableModels_MissingModel() {
+/**
+ * filterRemotableModels() should throw a MissingModelException when a model is provided in $filter which is not
+ * remotable model.
+ *
+ * @return void
+ * @expectedException MissingModelException
+ */
+	public function testFilterRemotableModelsMissingModel() {
 		$api = new BanchaApi();
 		$api->filterRemotableModels(array(), '[InvalidModel]');
 	}
 
-	/**
-	 * Tests if getMetadata returns meta data for all given models.
-	 */
+/**
+ * Tests if getMetadata returns meta data for all given models.
+ *
+ * @return void
+ */
 	public function testGetMetadata() {
 		$api = new BanchaApi();
 		$metadata = $api->getMetadata(array('User', 'Article', 'TestPlugin.Comment'));
@@ -164,12 +195,22 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertTrue(strlen($metadata['_UID']) > 0);
 	}
 
+/**
+ * Test getControllerClassByModelClass
+ *
+ * @return void
+ */
 	public function testGetControllerClassByModelClass() {
 		$api = new BanchaApi();
 		$this->assertEquals('UsersController', $api->getControllerClassByModelClass('User'));
 		$this->assertEquals('TestPlugin.CommentsController', $api->getControllerClassByModelClass('TestPlugin.Comment'));
 	}
 
+/**
+ * Test getCrudActionsOfController
+ *
+ * @return void
+ */
 	public function testGetCrudActionsOfController() {
 		$api = new BanchaApi();
 
@@ -201,7 +242,13 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertCount(0, $crudActions);
 	}
 
+/**
+ * Test getRemotableMethods
+ *
+ * @return void
+ */
 	public function testGetRemotableMethods() {
+		// prepare
 		$api = new BanchaApi();
 		$remotableMethods = $api->getRemotableMethods();
 		$this->assertCount(2, $remotableMethods);
@@ -221,6 +268,11 @@ class BanchaApiTest extends CakeTestCase {
 		$this->assertEquals(0, $remotableMethods['HelloWorld'][0]['len']);
 	}
 
+/**
+ * Test getRemotableModelActions
+ *
+ * @return void
+ */
 	public function testGetRemotableModelActions() {
 		$api = new BanchaApi();
 

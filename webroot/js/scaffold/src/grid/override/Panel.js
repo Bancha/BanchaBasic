@@ -1,20 +1,20 @@
 /*
  *
  * Bancha Scaffolding Library
- * Copyright 2011-2013 codeQ e.U.
+ * Copyright 2011-2014 codeQ e.U.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
  * @package       Bancha.scaffold
- * @copyright     Copyright 2011-2013 codeQ e.U.
- * @link          http://scaffold.banchaproject.org
+ * @copyright     Copyright 2011-2014 codeQ e.U.
+ * @link          http://scaffold.bancha.io
  * @since         Bancha Scaffold v 0.3.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @author        Roland Schuetz <mail@rolandschuetz.at>
  * @version       Bancha Scaffold v PRECOMPILER_ADD_BANCHA_SCAFFOLD_RELEASE_VERSION
  *
- * For more information go to http://scaffold.banchaproject.org
+ * For more information go to http://scaffold.bancha.io
  */
 
 /**
@@ -32,7 +32,7 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
         'Ext.grid.Panel',
         'Bancha.scaffold.form.Config',
         'Bancha.scaffold.grid.Config',
-        'Bancha.scaffold.data.override.Validations',
+        'Bancha.scaffold.data.Validators',
         'Bancha.scaffold.form.field.override.VTypes',
         'Bancha.scaffold.Util'
     ]
@@ -128,11 +128,11 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
     // add scaffolding support
     Ext.override(Ext.grid.Panel, {
         initComponent: function () {
-            var isModel, cls, config;
+            var isModel, config;
 
             if(this.scaffold) {
                 // check is the scaffold config is a model class or string
-                isModel = Ext.isString(this.scaffold) || Ext.ModelManager.isRegistered(Ext.ClassManager.getName(this.scaffold));
+                isModel = Ext.isString(this.scaffold) || Bancha.scaffold.Util.isModel(this.scaffold);
 
                 // if there's a model or config object, transform to config class
                 // normally we would use this.scaffold.isInstance instead of $className, but that was introduced in Ext JS 4.1
@@ -142,8 +142,7 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
                 }
 
                 // apply scaffolding
-                cls = Ext.ClassManager.getClass(this); //buildConfig is a static method
-                config = cls.buildConfig(this.scaffold, this.initialConfig);
+                config = Ext.grid.Panel.buildConfig(this.scaffold, this.initialConfig);
                 Ext.apply(this, config);
                 Ext.apply(this.initialConfig, config);
             }
@@ -225,10 +224,10 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
              * @return {Object}                                   Returns an Ext.grid.column.* configuration object
              */
             buildColumnConfig: function (field, config, validations, gridListeners) {
-                var fieldType = field.type.type,
+                var fieldType = Ext.versions.extjs.major === 5 ? field.type : field.type.type,
                     column = this.buildDefaultColumnFromModelType(fieldType, config),
                     model = config.target,
-                    association,
+                    associatedModel,
                     store,
                     fieldName;
 
@@ -239,12 +238,12 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
                 }
 
                 // check for associations
-                association = Bancha.scaffold.Util.getBelongsToAssociation(field, model);
-                if(association) {
+                associatedModel = Bancha.scaffold.Util.getBelongsToModel(field, model);
+                if(associatedModel) {
                     // load the store
-                    store = Bancha.scaffold.Util.getStore(association.associatedModel, config);
+                    store = Bancha.scaffold.Util.getStore(associatedModel, config);
                     // calculate the field name only once per column
-                    fieldName = Bancha.scaffold.Util.getDisplayFieldName(association.associatedModel);
+                    fieldName = Bancha.scaffold.Util.getDisplayFieldName(associatedModel);
 
                     // build a renderer
                     column.renderer = function(id) {
@@ -252,6 +251,12 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
 
                         // display either the found record name or Unknown
                         return rec ? rec.get(fieldName) : (Bancha.t ? Bancha.t('Unknown') : 'Unknown');
+                    };
+
+                    // For Ext JS 5, update after the id was changed
+                    column.updater = function(cell, value, record, view) {
+                        var name = column.renderer(value);
+                        Ext.fly(cell).child('div').setHtml(name);
                     };
 
                     // if necessary re-render when the data is available
@@ -270,12 +275,19 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
                 // add an editor
                 if(config.editable) {
                     // build the editor field
+                    Ext.syncRequire([
+                        'Ext.form.Panel',
+                        'Bancha.scaffold.form.override.Panel'
+                    ]);
                     column.editor = Ext.form.Panel.buildFieldConfig(field, config.formConfig, validations, true);
 
-                    // now make custom field transforms
-                    column.editor = Ext.form.Panel.internalTransformFieldConfig(column.editor, fieldType);
-                    if (typeof config.formConfig.transformFieldConfig === 'function') {
-                        column.editor = config.formConfig.transformFieldConfig(column.editor, fieldType);
+                    if(column.editor) {
+                        // if this should have an editor field
+                        // now make custom field transforms
+                        column.editor = Ext.form.Panel.internalTransformFieldConfig(column.editor, fieldType);
+                        if (typeof config.formConfig.transformFieldConfig === 'function') {
+                            column.editor = config.formConfig.transformFieldConfig(column.editor, fieldType);
+                        }
                     }
                 }
 
@@ -290,7 +302,7 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
             /**
              * @private
              * Builds grid columns from the model definition, for scaffolding purposes.
-             * This does not unclude the support for create,update and/or destroy!
+             * This does not unclude the support for create, update and/or destroy!
              *
              * @param {Bancha.scaffold.grid.Config} config        The grid config
              * @param {Object}                      gridListeners The grid listeners array, can be augmented by this function
@@ -300,7 +312,10 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
                 var columns = [],
                     model = config.target,
                     me = this,
-                    validations, button;
+                    fieldNames,
+                    validations,
+                    isExtJS5,
+                    button;
 
                 if(!Ext.isArray(config.exclude)) {
                     //<debug>
@@ -316,13 +331,19 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
                     config.exclude = [];
                 }
 
+                // if there is a fields config, use this for ordering
+                // Otherwise use fields.keys for Sencha Touch and Ext JS 4
+                fieldNames = config.fields || model.prototype.fields.keys || Ext.Object.getKeys(model.fieldsMap);
+
                 // build all columns
-                validations = model.prototype.validations;
-                model.prototype.fields.each(function (field) {
-                    if((!Ext.isArray(config.fields) || Ext.Array.indexOf(config.fields, field.name) !== -1) &&
-                        Ext.Array.indexOf(config.exclude, field.name) === -1) {
+                validations = model.prototype.validations || model.validators; // ST & Ext JS 4 || Ext JS 5
+                isExtJS5 = Ext.versions.extjs.major === 5;
+                Ext.each(fieldNames, function(fieldName) {
+                    if(Ext.Array.indexOf(config.exclude, fieldName) === -1) { // if not excluded
+                        var field = isExtJS5 ? model.getField(fieldName) : model.prototype.fields.getByKey(fieldName);
                         columns.push(
-                            me.buildColumnConfig(field, config, validations, gridListeners));
+                            me.buildColumnConfig(field, config, validations, gridListeners)
+                        );
                     }
                 });
 
@@ -349,7 +370,7 @@ Ext.define('Bancha.scaffold.grid.override.Panel', {
              */
             buildConfig: function (config, initialPanelConfig) {
                 initialPanelConfig = initialPanelConfig || {};
-                var model = Ext.ModelManager.getModel(config.target),
+                var model = Bancha.scaffold.Util.getModel(config.target),
                     gridConfig, cellEditing, store, scope, listeners;
 
                 //<debug>
