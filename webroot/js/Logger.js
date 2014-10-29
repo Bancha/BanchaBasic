@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,9 +8,9 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
@@ -19,12 +19,10 @@
  *
  * This class encalpsulates some logging features.
  *
- * For more see {@link Bancha.Logger#log}
+ * For more see the {@link Bancha.Logger#log} method.
  *
  * example usage:
  *
- *     Bancha.log('My error message');
- *     Bancha.log('My info message','info');
  *     Bancha.Logger.info('My info message');
  *     Bancha.Logger.warn('My warning message');
  *     Bancha.Logger.error('My error message');

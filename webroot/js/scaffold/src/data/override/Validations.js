@@ -17,13 +17,6 @@
  * For more information go to http://scaffold.bancha.io
  */
 
-// This code below is a copy from the Bancha package!
-
-// Fake missing classes for production
-if(Ext.versions.extjs.major === 5) {
-    Ext.define('Ext.data.validations', {});
-}
-
 /**
  * @private
  * @class Bancha.data.override.Validations
@@ -67,9 +60,12 @@ Ext.define('Bancha.scaffold.data.override.Validations', {
     /**
      * @class Ext.data.validations
      *
+     * For Sencha Touch and Ext JS 4:
      * Bancha extends Ext.data.validations with two new validation rules:
      * *range* and *file*.
      *
+     * For Ext JS 5 see {@class Bancha.data.validator.File}
+     * 
      * @author Roland Schuetz <mail@rolandschuetz.at>
      * @docauthor Roland Schuetz <mail@rolandschuetz.at>
      */

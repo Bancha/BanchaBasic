@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,13 +8,19 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
+ * @class Bancha.data.validator.File
+ * @extends Ext.data.validator.Validator
+ *
+ * For Ext JS 5:
  * Validates that the filename is one of given {@link #extension}.
+ *
+ * For Ext JS 4 see {@class Ext.data.validations}
  */
 Ext.define('Bancha.data.validator.File', {
     extend: 'Ext.data.validator.Validator',

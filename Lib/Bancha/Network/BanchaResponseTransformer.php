@@ -1,6 +1,6 @@
 <?php
 /**
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Lib.Bancha.Network
@@ -78,7 +78,7 @@ class BanchaResponseTransformer {
 		if (is_array($response) && isset($response['success'])) {
 
 			// enforce that the success value is of type boolean
-			$response['success'] = ($response['success'] === 'false') ? false : !!$response['success'];
+			$response['success'] = ($response['success'] === 'false') ? false : (bool)$response['success'];
 
 			return $response; // everything done
 		}

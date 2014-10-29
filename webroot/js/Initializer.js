@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,9 +8,9 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
@@ -42,6 +42,28 @@ if(Ext.Loader) {
     if(!Ext.Loader.getConfig('paths')['Bancha.scaffold']) {
         // Since CakePHP does not follow symlinks we need to setup a second path for Bancha Scaffold
         Ext.Loader.setPath('Bancha.scaffold', Ext.Loader.getPath('Bancha')+'/scaffold/src');
+    }
+
+    // If the microloader is not used and therefore the Bancha tasks for Sencha CMD are not executed
+    // then the Ext pathes are not adopted and are fixed here
+    // This is only about the shimed Ext classes.
+    var paths = Ext.Loader.getConfig('paths');
+    if(!paths['Ext.data.validator']) {
+        // ok, the microloader is obviously not used
+        // so add the necessary classes
+        var banchaPath = Ext.Loader.getPath('Bancha'),
+            setPathIf = function(className) {
+                if(!paths[className]) {
+                    Ext.Loader.setPath(className, banchaPath + className.replace('Ext.','/').replace(/\./g,'/') + '.js');
+                }
+            };
+        if(Ext.versions.ext && Ext.versions.ext.major===5) {
+            setPathIf('Ext.data.validations');
+        } else {
+            setPathIf('Ext.data.validator.Validator');
+            setPathIf('Ext.data.validator.Bound');
+            setPathIf('Ext.data.validator.Range');
+        }
     }
 }
 //</debug>

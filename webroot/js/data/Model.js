@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,13 +8,12 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
- * @private
  * @class Bancha.data.Model
  * @extends Ext.data.Model
  *
@@ -61,6 +60,7 @@ Ext.define('Bancha.data.Model', {
     },
 
     /**
+     * @private
      * For Ext JS:
      * Every time a new subclass is created, this function will apply all Bancha model configurations.
      *
@@ -171,16 +171,23 @@ Ext.define('Bancha.data.Model', {
             // add all class statics for Bancha models
             modelCls.addStatics(this.extendedClassStatics);
 
+            // for Ext JS configure the schema namespace
+            if(Ext.versions.extjs && Ext.versions.extjs.major===5 && modelCls.schema) {
+                modelCls.schema.setNamespace(Bancha.modelNamespace);
+            }
+
             // configure the new model
             config = Bancha.getModelMetaData(modelName);
 
             // default case for Ext JS 4 and Sencha Touch
             if(typeof modelCls.setFields === 'function') {
                 modelCls.setFields(config.fields);
-            } else if(Ext.versions.extjs && Ext.versions.extjs.major === 4) {
+            }
+            if(Ext.versions.extjs) {
                 // this is used for three cases:
                 // - Support for Ext JS 4.0.7
                 // - Ext JS Support for ScriptTagInitializer, where we hook into Ext.data.Model extend
+                // - Ext JS 5 support with the microloader
                 extJsOnClassExtendedData.fields = config.fields;
             }
             // Ext JS 5 fields are handled in a seperate function at the end of the file
@@ -191,7 +198,6 @@ Ext.define('Bancha.data.Model', {
                 modelCls.setValidations(config.validations);
                 modelCls.setDisplayField(config.displayField);
             } else {
-                extJsOnClassExtendedData.associations = config.associations;
                 extJsOnClassExtendedData.associations = config.associations;
                 extJsOnClassExtendedData.idProperty = config.idProperty;
                 extJsOnClassExtendedData.validations = config.validations;
@@ -207,6 +213,7 @@ Ext.define('Bancha.data.Model', {
         },
 
         /**
+         * @private
          * The following configs should be available on a per-model basis,
          * therefore these statics are added to each extended class
          */
@@ -262,7 +269,8 @@ Ext.define('Bancha.data.Model', {
         },
 
         /**
-         * To display nicer debugging messages, i debug mode this returns
+         * @private
+         * To display nicer debugging messages, in debug mode this returns
          * a fake function if the stub method doesn't exist.
          *
          * In production mode it simply returns the original function or null.

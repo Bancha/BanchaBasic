@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,9 +8,9 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 0.0.2
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
@@ -56,10 +56,13 @@ Ext.define('Bancha.data.override.Validations', {
     /**
      * @class Ext.data.validations
      *
+     * For Sencha Touch and Ext JS 4:
      * Bancha extends Ext.data.validations with two new validation rules:
      * *range* and *file*.
      *
      * These custom validations are mapped from CakePHP.
+     *
+     * For Ext JS 5 see {@class Bancha.data.validator.File}
      *
      * @author Roland Schuetz <mail@rolandschuetz.at>
      * @docauthor Roland Schuetz <mail@rolandschuetz.at>

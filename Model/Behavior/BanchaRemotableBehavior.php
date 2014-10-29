@@ -2,7 +2,7 @@
 /**
  * BanchaRemotableBehavior file
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Model.Behavior
@@ -129,7 +129,7 @@ class BanchaRemotableBehavior extends ModelBehavior {
 	protected $_settings = array();
 
 /**
- * Sets up the BanchaRemotable behavior. For config options see above.
+ * Sets up the BanchaRemotable behavior. For config options see $_defaults.
  *
  * @param Model $model    Model using this behavior
  * @param array $settings Array of configuration settings.

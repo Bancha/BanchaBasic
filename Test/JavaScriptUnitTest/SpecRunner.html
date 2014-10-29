@@ -18,11 +18,13 @@
     Bancha.REMOTE_API = {}; // set this to not load the api as requirement
 
 
-    // for Ext JS fake Ext.data.validator.Validator
+    // fake some shim classes
     if(Ext.versions.extjs.major === 5) {
       Ext.define('Ext.data.validations', {});
     } else {
       Ext.define('Ext.data.validator.Validator', {});
+      Ext.define('Ext.data.validator.Bound', {});
+      Ext.define('Ext.data.validator.Range', {});
     }
   </script>
 
@@ -34,6 +36,8 @@
   <script type="text/javascript" src="../../webroot/js/data/override/NodeInterface.js"></script>
   <script type="text/javascript" src="../../webroot/js/data/override/Validations.js"></script>
   <script type="text/javascript" src="../../webroot/js/data/validator/File.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/validator/override/Bound.js"></script>
+  <script type="text/javascript" src="../../webroot/js/data/validator/override/Range.js"></script>
   <script type="text/javascript" src="../../webroot/js/data/Validators.js"></script>
   <script type="text/javascript" src="../../webroot/js/Main.js"></script>
   <script type="text/javascript" src="../../webroot/js/data/Model.js"></script>

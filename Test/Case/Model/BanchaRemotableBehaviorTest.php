@@ -2,7 +2,7 @@
 /**
  * BanchaRemotableBehaviorTest file.
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha.Test.Case.Model
@@ -2123,7 +2123,7 @@ class BanchaRemotableBehaviorTest extends CakeTestCase {
 
 		// save article
 		$article->create();
-		$this->assertTrue(!!$article->saveFieldsAndReturn(array(
+		$this->assertTrue((bool)$article->saveFieldsAndReturn(array(
 			'ArticleForTestingSaveBehavior' => array(
 				'title' => 'testModelSave Entry',
 				'body' => 'This is the body text.',
@@ -2133,7 +2133,7 @@ class BanchaRemotableBehaviorTest extends CakeTestCase {
 
 		// second article with same title
 		$article->create();
-		$this->assertTrue(!!$article->saveFieldsAndReturn(array(
+		$this->assertTrue((bool)$article->saveFieldsAndReturn(array(
 			'ArticleForTestingSaveBehavior' => array(
 				'title' => 'testModelSave Entry',
 				'body' => 'This is the body text.',

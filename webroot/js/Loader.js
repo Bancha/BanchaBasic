@@ -1,6 +1,6 @@
 /*!
  *
- * Bancha Project : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://banchaproject.org)
+ * Bancha : Seamlessly integrates CakePHP with Ext JS and Sencha Touch (http://bancha.io)
  * Copyright 2011-2014 codeQ e.U.
  *
  * @package       Bancha
@@ -8,9 +8,9 @@
  * @link          http://bancha.io Bancha
  * @since         Bancha v 2.0.0
  * @author        Roland Schuetz <mail@rolandschuetz.at>
- * @version       Bancha v 2.3.0
+ * @version       Bancha v 2.4.0
  *
- * For more information go to http://banchaproject.org
+ * For more information go to http://bancha.io
  */
 
 /**
@@ -238,6 +238,10 @@ Ext.define('Bancha.Loader', {
             // if we don't have a default class loader set, nothing to do
             if(!this.getDefaultLoader()) {
                 return true;
+            }
+
+            if(!params._classNames) {
+                return true; // the microloader is used, pathes are fixed by Sencha CMD script
             }
 
             // check for each class
